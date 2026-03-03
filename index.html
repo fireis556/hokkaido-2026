@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#d4789c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>🗾 2026 北海道自由行</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--pink:#d4789c;--pink-light:#fef7f9;--pink-bg:#fff5f8;--text:#2d2d2d;--text-light:#666;--card-bg:#fff;--border:#f0e0e6;--shadow:0 2px 8px rgba(212,120,156,.12)}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sans",sans-serif;background:var(--pink-light);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+/* Header */
+.header{background:linear-gradient(135deg,#d4789c,#c0628a);color:#fff;padding:18px 16px 14px;text-align:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.header h1{font-size:18px;font-weight:700;letter-spacing:.5px}
+.header .sub{font-size:12px;opacity:.85;margin-top:4px}
+/* Tab bar */
+.tabs{display:flex;position:sticky;top:56px;z-index:99;background:#fff;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:600;color:var(--text-light);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;user-select:none}
+.tab.active{color:var(--pink);border-bottom-color:var(--pink)}
+.tab:active{background:var(--pink-bg)}
+/* Content */
+.content{padding:12px 12px 24px;max-width:600px;margin:0 auto}
+.day-view{display:none}
+.day-view.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* Day header */
+.day-header{background:var(--card-bg);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.day-header .date{font-size:16px;font-weight:700;color:var(--pink)}
+.day-header .hotel{font-size:13px;color:var(--text-light);margin-top:4px}
+.day-header .hotel::before{content:"🏨 "}
+.day-header .warn{font-size:12px;color:#b85c00;background:#fff8ef;border-left:3px solid #f0a030;padding:6px 10px;margin-top:8px;border-radius:0 8px 8px 0;line-height:1.5}
+/* Timeline */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:"";position:absolute;left:8px;top:12px;bottom:12px;width:2px;background:linear-gradient(to bottom,var(--pink),#e8c0d0)}
+.item{position:relative;margin-bottom:8px}
+.item::before{content:"";position:absolute;left:-16px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--pink);border:2px solid #fff;box-shadow:0 0 0 2px var(--pink);z-index:1}
+.item.bus::before{background:#888;box-shadow:0 0 0 2px #888}
+.item.rest::before{background:#aaa;box-shadow:0 0 0 2px #aaa}
+.card{background:var(--card-bg);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);transition:transform .15s}
+.card:active{transform:scale(.98)}
+.card .time{font-size:11px;color:var(--pink);font-weight:700;letter-spacing:.3px}
+.card .activity{font-size:14px;font-weight:600;margin:4px 0 2px;line-height:1.4}
+.card .activity a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--pink)}
+.card .notes{font-size:11.5px;color:var(--text-light);line-height:1.5;margin-top:4px}
+.card .notes .warn-text{color:#b85c00}
+.card .map-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--pink);margin-top:6px;text-decoration:none;padding:3px 8px;background:var(--pink-bg);border-radius:20px;font-weight:500}
+.card .map-link:active{background:#fce0ec}
+.card.compact{padding:8px 14px}
+.card.compact .activity{font-size:12px;font-weight:500;color:var(--text-light)}
+/* Budget section */
+.budget{background:var(--card-bg);border-radius:14px;padding:14px 16px;margin-top:16px;box-shadow:var(--shadow)}
+.budget h3{font-size:13px;font-weight:700;color:var(--pink);margin-bottom:8px}
+.budget table{width:100%;font-size:12px;border-collapse:collapse}
+.budget td{padding:3px 0;border-bottom:1px solid var(--border)}
+.budget td:last-child{text-align:right;font-weight:600}
+.budget tr:last-child td{border-bottom:none;color:var(--pink);font-weight:700}
+/* Footer */
+.footer{text-align:center;padding:20px;font-size:11px;color:#bbb}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🗾 2026 北海道自由行</h1>
+  <div class="sub">05/15（五）— 05/20（三）｜5泊6日｜4人</div>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+<div class="footer">離線可用 · 可安裝至桌面 · 點擊地點開啟 Google Maps</div>
+
+<script>
+const DAYS = [
+  {
+    day: 1, date: "05/15（五）", title: "入境 → 洞爺湖",
+    hotel: "The Lake Suite Ko No Sumika",
+    warns: ["さっぽろライラックまつり 2026 年開催日為 05/20～，Day 1 不適用"],
+    items: [
+      {t:"07:35",a:"✈ 新千歳空港入境",n:"VZ570 泰國越捷｜TPE 02:50→CTS 07:35",m:"新千歳空港"},
+      {t:"~08:30",a:"🚶 通關 → 步行至國內線 JR 站",n:"國際→國內徒步連通 約12分"},
+      {t:"08:52",a:"🚃 JR 快速エアポート31 發車",n:"新千歳空港→新札幌 28分｜¥1,740/人(含uシート)"},
+      {t:"09:20",a:"🚇 JR 新札幌 → 地下鉄 新さっぽろ → 大通",n:"東西線 10站 19分｜¥320/人"},
+      {t:"09:47",a:"🔒 大通駅 コインロッカー寄放行李",n:"東西線側 大型 ¥500×4＝¥2,000",m:"大通駅 札幌"},
+      {t:"10:00~11:00",a:"🍽 早餐：SIROYA（ISHIYA 直營）",n:"大通駅北改札直結｜朝焼きクロワッサン+ドリンク ¥500｜コーヒー無限續杯",m:"シロヤ SIROYA 札幌大通"},
+      {t:"11:05~11:20",a:"🌽 とうきびワゴン",n:"大通公園 西3-4丁目｜焼きとうきび ¥500／じゃがバター ¥300",m:"大通公園 とうきびワゴン 札幌"},
+      {t:"11:20~11:40",a:"📸 さっぽろテレビ塔 外觀拍照",n:"西1丁目｜展望台 ¥1,000（可略過）",m:"さっぽろテレビ塔"},
+      {t:"11:40~12:10",a:"🍦 大通ビッセ BISSE SWEETS",n:"きのとや「オムパフェ」¥594（限定）・町村農場「牧場ミルクソフト」¥418",m:"大通ビッセ 札幌"},
+      {t:"12:30",a:"🔒 取回行李",n:"大通駅 コインロッカー"},
+      {t:"12:45",a:"🚌 札幌→洞爺湖 湖之栖無料送迎バス",n:"集合：カナモトホール駐車場前 12:45｜出発 13:00",m:"カナモトホール 札幌"},
+      {t:"15:00",a:"🏨 Check-in",n:"The Lake Suite Ko No Sumika",m:"ザレイクスイート湖の栖 洞爺湖"},
+      {t:"15:15~16:15",a:"🚶 湖畔散策＋彫刻公園",n:"往西方向沿湖岸走｜新綠+中島+羊蹄山",m:"洞爺湖 彫刻公園"},
+      {t:"16:15~17:15",a:"♨ 8F 屋上大浴場「湖上の湯」",n:"インフィニティ露天風呂（3段構造）・サウナ"},
+      {t:"18:00~20:00",a:"🍽 夕食：ハーフビュッフェ",n:"しんりんダイニング 本館2F｜和食＋ビュッフェ（ステーキ・寿司・天ぷら等）"},
+      {t:"20:45~21:05",a:"🎆 ロングラン花火大会",n:"房間露台觀賞｜4月下旬～10月末 毎晚 20:45 約20分",m:"洞爺湖温泉 花火"},
+      {t:"21:05~",a:"🛁 房間露天風呂・就寢",n:"全室温泉露天風呂付"}
+    ],
+    budget:{transport:"¥10,240",meals:"宿泊費込"}
+  },
+  {
+    day: 2, date: "05/16（六）", title: "洞爺湖 → 札幌",
+    hotel: "Comfort Hotel Sapporo Susukino",
+    warns: ["道南バス 2026/4/1 ダイヤ改正 → 出發前需再確認時刻與票價"],
+    items: [
+      {t:"07:30~09:00",a:"🍽 朝食：しんりんダイニング",n:"本館2F（07:00～09:00）｜壽司・天婦羅・帆立浜焼き・イクラ醤油漬け"},
+      {t:"09:00~10:00",a:"🛁 最後の露天風呂＋退房準備",n:"房間露天風呂 or 8F「湖上の湯」"},
+      {t:"10:00",a:"🏨 Check-out",n:"帶全部行李出發"},
+      {t:"10:00~10:10",a:"🚕 計程車→バスターミナル",n:"約5分 ~¥1,500",m:"洞爺湖温泉バスターミナル"},
+      {t:"10:10~10:15",a:"🔒 行李放コインロッカー",n:"¥300~700/個｜硬貨のみ｜大型行李需電話確認 0142-75-2446"},
+      {t:"10:30",a:"🚢 洞爺湖遊覧船 出航",n:"不登島約50分｜¥1,600（HIS 10%OFF→¥1,440）｜須列印紙本",m:"洞爺湖汽船 駅前桟橋"},
+      {t:"11:20~12:40",a:"🚶 溫泉街散策 80分",n:"岡田屋（白いおしるこ）・わかさいも・Toya Beer・足湯「洞龍の湯」",m:"洞爺湖温泉街"},
+      {t:"12:40~12:50",a:"🚶 回バスターミナル取行李",n:"徒歩 2~3 分"},
+      {t:"13:00",a:"🚌 道南バス 洞爺湖温泉発",n:"完全予約制｜約2.5hr→すすきの",c:true},
+      {t:"~15:30",a:"🏨 Check-in Comfort Hotel",n:"📍南5西1｜無料朝食付",m:"コンフォートホテル札幌すすきの"},
+      {t:"16:20~17:15",a:"🛍 狸小路散策（去程）1→7丁目",n:"經6丁目先買新倉屋「花園だんご」",m:"狸小路商店街 札幌"},
+      {t:"17:30~18:30",a:"🍛 晚餐：SOUL STORE",n:"📍南3西7 2F｜スープカレー ¥1,300~2,000/人｜定休：月曜",m:"SOUL STORE スープカレー 札幌"},
+      {t:"18:30~20:25",a:"🛍 狸小路回程重點購物",n:"藥妝比價（サンドラッグ・ツルハ・マツキヨ）"},
+      {t:"20:35~21:15",a:"🍨 シメパフェ：INITIAL SAPPORO",n:"📍南3西5 狸小路5丁目｜15:00～24:00｜~¥2,000~3,000/人",m:"INITIAL SAPPORO 札幌"},
+      {t:"21:15",a:"🚶 回飯店",n:"約8~10分"}
+    ],
+    budget:{transport:"~¥24,000",meals:"~¥23,000"}
+  },
+  {
+    day: 3, date: "05/17（日）", title: "小樽一日遊＋成吉思汗",
+    hotel: "Comfort Hotel Sapporo Susukino（續住）",
+    warns: [],
+    items: [
+      {t:"07:00~08:15",a:"🍽 飯店免費朝食",n:"Comfort Hotel 無料ビュッフェ"},
+      {t:"08:48",a:"🚃 JR 快速エアポート → 小樽",n:"¥800/人｜約32分",c:true},
+      {t:"09:20~09:40",a:"🚶 小樽駅 → 小樽運河",n:"中央通り直行 徒歩約10分",m:"小樽運河 浅草橋"},
+      {t:"09:40~10:00",a:"📸 小樽運河・浅草橋街園",n:"經典拍照點｜石造倉庫群",m:"小樽運河"},
+      {t:"10:10",a:"📝 ぜん庵 記名候位",n:"11:00 開店前排隊",m:"おたる政寿司 ぜん庵"},
+      {t:"11:00~12:00",a:"🍣 午餐：おたる政寿司 ぜん庵",n:"📍色内1-2-1（運河旁）｜茜/萩 ¥4,180・匠 ¥6,600",m:"おたる政寿司 ぜん庵"},
+      {t:"12:10~12:25",a:"🍥 かま栄 工場直売店",n:"📍堺町3-7｜パンロール ~¥230",m:"かま栄 工場直売店 小樽"},
+      {t:"12:25~12:45",a:"🚶 堺町通り散策",n:"3→7丁目 途中雜貨・硝子小店",m:"堺町通り 小樽"},
+      {t:"12:45~13:15",a:"🏛 北一硝子 三号館",n:"📍堺町7-26｜167盞石油ランプ",m:"北一硝子 三号館 小樽"},
+      {t:"13:15~13:45",a:"🛍 六花亭＋北菓楼 小樽",n:"マルセイバターサンド・開拓おかき・シュークリーム",m:"六花亭 小樽運河店"},
+      {t:"13:45~14:30",a:"🍰 ルタオ本店 2F カフェ",n:"📍メルヘン交差点｜生ドゥーブルフロマージュ（本店限定）",m:"ルタオ本店 小樽"},
+      {t:"14:30~15:00",a:"🎵 小樽オルゴール堂 本館",n:"約3,200種・38,000件以上｜外觀蒸気時計",m:"小樽オルゴール堂 本館"},
+      {t:"15:20頃",a:"🚃 JR 南小樽 → 札幌",n:"¥800/人｜約35分",c:true},
+      {t:"16:00",a:"🏨 回飯店休息",n:""},
+      {t:"17:30~19:00",a:"🍖 晚餐：FUJIYAMAジンギスカン",n:"📍南2西7｜無煙ロースター＋半個室｜¥4,500~5,000/人",m:"FUJIYAMA ジンギスカン 札幌"},
+      {t:"19:00",a:"🚶 回飯店",n:"徒歩約13~15分"}
+    ],
+    budget:{transport:"¥7,240",meals:"~¥43,640"}
+  },
+  {
+    day: 4, date: "05/18（一）", title: "札幌深度一日遊",
+    hotel: "HOTEL MYSTAYS Sapporo Aspen",
+    warns: ["星期一（月曜）— 已確認所有景點月曜營業 ✅"],
+    items: [
+      {t:"08:00",a:"🏨 退房 Comfort Hotel → MYSTAYS Aspen 寄行李",n:"南北線 すすきの→さっぽろ 2站4分｜建議 07:50 出發",m:"ホテルマイステイズ札幌アスペン"},
+      {t:"08:45~10:15",a:"🍽 札幌場外市場｜海鮮早午餐",n:"JR 札幌→桑園 1站3分＋步行9分｜推薦：北のグルメ亭",m:"札幌場外市場"},
+      {t:"10:30~11:30",a:"☕ 森彦 MORIHICO. 本店",n:"円山公園駅 徒歩4分｜9:00~19:00（L.O.18:30）｜僅6桌",m:"森彦 本店 札幌"},
+      {t:"11:45~13:30",a:"🚶 円山公園 → 北海道神宮 → 六花亭＋きのとや",n:"判官さま ¥140（限定・現烤）＋福レ餅 ¥250（境內限定）",m:"北海道神宮"},
+      {t:"14:00~15:00",a:"🛍 大丸B1・STELLAR PLACE → Check-in",n:"神宮→円山公園駅 徒歩15分＋地鐵7分｜15:00 check-in",m:"大丸札幌店"},
+      {t:"15:00~17:00",a:"🏨 飯店休息",n:""},
+      {t:"17:00",a:"🚶 出發往藻岩山",n:"地鐵 さっぽろ→大通（2分）→ 市電 西4丁目（3~4分）"},
+      {t:"17:12~17:34",a:"🚃 市電 西4丁目→ロープウェイ入口",n:"¥230/人｜内回り 約22分"},
+      {t:"17:34~17:45",a:"🚌 無料シャトルバス → 山麓駅",n:"平日 17:15 始発・15分毎｜乘車約5分",m:"藻岩山ロープウェイ 山麓駅"},
+      {t:"17:50~18:15",a:"🚡 ロープウェイ＋もーりすカー → 山頂",n:"往復 ¥2,100（VELTRA ¥1,890）｜含換乘等候15~20分"},
+      {t:"18:15~19:15",a:"🌃 藻岩山展望台 夜景",n:"日落 18:54｜トワイライト 19:10~19:25｜日本新三大夜景",m:"藻岩山展望台"},
+      {t:"19:15~19:45",a:"🚡 下山＋シャトルバス",n:""},
+      {t:"19:45~20:09",a:"🚃 市電 ロープウェイ入口→西4丁目",n:"¥230/人｜外回り 約24分"},
+      {t:"20:15~21:15",a:"🍖 ノースコンチネント まちのなか店",n:"📍南2西1-6 B1F｜L.O.21:30｜¥2,000~3,000/人｜要事前預約",m:"ノースコンチネント まちのなか店 札幌"},
+      {t:"21:30",a:"🚶 回 MYSTAYS Aspen",n:"大通→さっぽろ（2分）＋步行5分 ≈ 12~14分"}
+    ],
+    budget:{transport:"~¥14,200",meals:"~¥23,000~29,000"}
+  },
+  {
+    day: 5, date: "05/19（二）", title: "瀧上芝櫻＆上湧別鬱金香",
+    hotel: "HOTEL MYSTAYS Sapporo Aspen（續住）",
+    warns: ["Klook 一日巴士團｜午餐不包含，景點附近無餐廳，務必自備食物和飲料"],
+    items: [
+      {t:"07:30",a:"🏨 飯店出發＋便利商店買午餐",n:"さっぽろ駅周邊 Lawson/7-11 補糧"},
+      {t:"08:10",a:"📍 集合：札幌電視塔 1F",n:"地鐵 さっぽろ→大通（2分）＋步行3~4分｜認 EasyGo 白旗",m:"さっぽろテレビ塔"},
+      {t:"08:20",a:"🚌 出發",n:"札幌電視塔發車",c:true},
+      {t:"09:40",a:"🚻 比布大雪停車區",n:"休息10分鐘",c:true},
+      {t:"11:30~13:00",a:"🌸 瀧上芝櫻公園",n:"停留1.5小時｜10萬㎡粉紅芝櫻山｜日本最大規模｜推薦：芝櫻冰淇淋",m:"芝ざくら滝上公園"},
+      {t:"14:00~15:30",a:"🌷 上湧別鬱金香公園",n:"停留1.5小時｜200種以上鬱金香｜彩虹花田＋風車",m:"かみゆうべつチューリップ公園"},
+      {t:"17:00",a:"🚻 比布大雪停車區",n:"休息10分鐘",c:true},
+      {t:"20:20",a:"📍 札幌站北口下車",n:"步行5分回飯店最近",m:"札幌駅北口"},
+      {t:"20:30",a:"🚶 回 MYSTAYS Aspen",n:"步行5分"},
+      {t:"20:45~21:30",a:"🍽 晚餐（輕食）",n:"札幌站周邊｜一天坐車較累"}
+    ],
+    budget:{transport:"Klook 費用另計",meals:"自備午餐＋晚餐輕食"}
+  },
+  {
+    day: 6, date: "05/20（三）", title: "離境日",
+    hotel: "",
+    warns: [],
+    items: [
+      {t:"05:15",a:"⏰ 起床準備",n:"前晚備好隨身行李"},
+      {t:"05:30",a:"🏨 Check-out MYSTAYS Aspen",n:"步行2分至 JR 札幌駅北口",m:"ホテルマイステイズ札幌アスペン"},
+      {t:"05:35",a:"🛒 SEICOMART 購買咖啡＋輕食",n:"HOT CHEF 飯糰（北海道限定）",m:"セイコーマート 札幌駅北口"},
+      {t:"05:50",a:"🚃 JR 快速エアポート10号",n:"自由席 ¥1,150/人｜38分｜06:28着"},
+      {t:"06:40",a:"✈ 國際線 Check-in＋託運行李",n:"VietJet 櫃台（起飛前 ~2h20m）",m:"新千歳空港 国際線"},
+      {t:"07:15~07:50",a:"🍳 國內線早餐",n:"新千歳エアポートレストラン by ROYAL HOST（3F 07:20~）",m:"ロイヤルホスト 新千歳空港店"},
+      {t:"08:00",a:"🛃 保安檢查 → 出國審查",n:""},
+      {t:"~08:20",a:"🛍 管制區內免稅店",n:"最後採購機會"},
+      {t:"09:00",a:"✈ 航班起飛",n:"VZ571｜CTS 09:00 → TPE 12:25"}
+    ],
+    budget:{transport:"¥4,600 (JR×4)",meals:"~¥4,000"}
+  }
+];
+
+function mapUrl(q){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`}
+
+function render(){
+  const tabs=document.getElementById('tabs');
+  const content=document.getElementById('content');
+
+  // Tabs
+  tabs.innerHTML=DAYS.map(d=>
+    `<div class="tab" data-day="${d.day}">Day ${d.day}<br><span style="font-size:10px;font-weight:400">${d.date.slice(0,5)}</span></div>`
+  ).join('');
+
+  // Day views
+  content.innerHTML=DAYS.map(d=>{
+    let html=`<div class="day-view" id="day${d.day}">`;
+    // Header
+    html+=`<div class="day-header"><div class="date">Day ${d.day} — ${d.date}</div><div class="date" style="font-size:14px;color:var(--text);margin-top:2px">${d.title}</div>`;
+    if(d.hotel)html+=`<div class="hotel">${d.hotel}</div>`;
+    d.warns.forEach(w=>html+=`<div class="warn">⚠️ ${w}</div>`);
+    html+=`</div>`;
+    // Timeline
+    html+=`<div class="timeline">`;
+    d.items.forEach(it=>{
+      const cls=it.c?'item bus':'item';
+      html+=`<div class="${cls}"><div class="card${it.c?' compact':''}">`;
+      html+=`<div class="time">${it.t}</div>`;
+      html+=`<div class="activity">${it.a}</div>`;
+      if(it.n)html+=`<div class="notes">${it.n.replace(/⚠️/g,'<span class="warn-text">⚠️</span>')}</div>`;
+      if(it.m)html+=`<a class="map-link" href="${mapUrl(it.m)}" target="_blank" rel="noopener">📍 Google Maps</a>`;
+      html+=`</div></div>`;
+    });
+    html+=`</div>`;
+    // Budget
+    if(d.budget){
+      html+=`<div class="budget"><h3>💰 費用概算（4人）</h3><table>`;
+      html+=`<tr><td>交通</td><td>${d.budget.transport}</td></tr>`;
+      html+=`<tr><td>餐費</td><td>${d.budget.meals}</td></tr>`;
+      html+=`</table></div>`;
+    }
+    html+=`</div>`;
+    return html;
+  }).join('');
+
+  // Tab switching
+  let active=1;
+  function setDay(n){
+    active=n;
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.day===n));
+    document.querySelectorAll('.day-view').forEach(v=>v.classList.toggle('active',v.id===`day${n}`));
+    // scroll tab into view
+    const at=document.querySelector('.tab.active');
+    if(at)at.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+  tabs.addEventListener('click',e=>{
+    const tab=e.target.closest('.tab');
+    if(tab)setDay(+tab.dataset.day);
+  });
+
+  // Swipe support
+  let sx=0,sy=0;
+  content.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  content.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-sx;
+    const dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){
+      if(dx<0&&active<6)setDay(active+1);
+      else if(dx>0&&active>1)setDay(active-1);
+    }
+  },{passive:true});
+
+  // Auto-select today or Day 1
+  const today=new Date();
+  const dayMap={15:1,16:2,17:3,18:4,19:5,20:6};
+  const autoDay=(today.getFullYear()===2026&&today.getMonth()===4)?dayMap[today.getDate()]||1:1;
+  setDay(autoDay);
+}
+
+render();
+
+// Register service worker
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
