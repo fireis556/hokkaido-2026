@@ -56,9 +56,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sa
 .budget{background:var(--card-bg);border-radius:14px;padding:14px 16px;margin-top:16px;box-shadow:var(--shadow)}
 .budget h3{font-size:13px;font-weight:700;color:var(--pink);margin-bottom:8px}
 .budget table{width:100%;font-size:12px;border-collapse:collapse}
-.budget td{padding:3px 0;border-bottom:1px solid var(--border)}
-.budget td:last-child{text-align:right;font-weight:600}
-.budget tr:last-child td{border-bottom:none;color:var(--pink);font-weight:700}
+.budget td{padding:4px 0}
+.budget td:last-child{text-align:right;font-family:'SF Mono',Menlo,'Courier New',monospace;font-size:11.5px;white-space:nowrap}
+.budget tr.total td{border-top:1.5px dashed #e0c0cc;padding-top:8px;font-weight:700;color:var(--pink)}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:#bbb}
 </style>
@@ -99,7 +99,15 @@ const DAYS = [
       {t:"20:45~21:05",a:"🎆 ロングラン花火大会",n:"房間露台觀賞｜4月下旬～10月末 毎晚 20:45 約20分",m:"洞爺湖温泉 花火"},
       {t:"21:05~",a:"🛁 房間露天風呂・就寢",n:"全室温泉露天風呂付"}
     ],
-    budget:{transport:"¥10,240",meals:"宿泊費込"}
+    budget:[
+      ["JR+uシート 新千歳→新札幌 ×4","¥6,960"],
+      ["地下鉄 新さっぽろ→大通 ×4","¥1,280"],
+      ["コインロッカー ×4","¥2,000"],
+      ["朝食 SIROYA ×4","~¥2,000"],
+      ["大通公園小吃","~¥4,000"],
+      ["夕食","宿泊費込"],
+      ["合計","~¥16,240"]
+    ]
   },
   {
     day: 2, date: "05/16（六）", title: "洞爺湖 → 札幌",
@@ -122,7 +130,17 @@ const DAYS = [
       {t:"20:35~21:15",a:"🍨 シメパフェ：INITIAL SAPPORO",n:"📍南3西5 狸小路5丁目｜15:00～24:00｜~¥2,000~3,000/人",m:"INITIAL SAPPORO 札幌"},
       {t:"21:15",a:"🚶 回飯店",n:"約8~10分"}
     ],
-    budget:{transport:"~¥24,000",meals:"~¥23,000"}
+    budget:[
+      ["計程車 旅館→BT","~¥1,500"],
+      ["コインロッカー ×4","~¥2,000"],
+      ["遊覧船 HIS 10%OFF ×4","¥5,760"],
+      ["道南バス 洞爺湖→すすきの ×4","¥14,800"],
+      ["溫泉街零食","~¥2,000"],
+      ["晚餐 SOUL STORE ×4","~¥8,000"],
+      ["和菓子","~¥1,000"],
+      ["シメパフェ INITIAL ×4","~¥12,000"],
+      ["合計","~¥47,060"]
+    ]
   },
   {
     day: 3, date: "05/17（日）", title: "小樽一日遊＋成吉思汗",
@@ -146,7 +164,15 @@ const DAYS = [
       {t:"17:30~19:00",a:"🍖 晚餐：FUJIYAMAジンギスカン",n:"📍南2西7｜無煙ロースター＋半個室｜¥4,500~5,000/人",m:"FUJIYAMA ジンギスカン 札幌"},
       {t:"19:00",a:"🚶 回飯店",n:"徒歩約13~15分"}
     ],
-    budget:{transport:"¥7,240",meals:"~¥43,640"}
+    budget:[
+      ["地鐵 すすきの→さっぽろ ×4","¥840"],
+      ["JR 札幌⇄小樽 ×4","¥6,400"],
+      ["午餐 ぜん庵 ×4","¥16,720"],
+      ["かま栄＋堺町零食","~¥2,920"],
+      ["ルタオ カフェ ×4","~¥4,000"],
+      ["晚餐 FUJIYAMA ×4","~¥20,000"],
+      ["合計","~¥50,880"]
+    ]
   },
   {
     day: 4, date: "05/18（一）", title: "札幌深度一日遊",
@@ -169,7 +195,17 @@ const DAYS = [
       {t:"20:15~21:15",a:"🍖 ノースコンチネント まちのなか店",n:"📍南2西1-6 B1F｜L.O.21:30｜¥2,000~3,000/人｜要事前預約",m:"ノースコンチネント まちのなか店 札幌"},
       {t:"21:30",a:"🚶 回 MYSTAYS Aspen",n:"大通→さっぽろ（2分）＋步行5分 ≈ 12~14分"}
     ],
-    budget:{transport:"~¥14,200",meals:"~¥23,000~29,000"}
+    budget:[
+      ["地鐵（全日 5 段）×4","¥4,200"],
+      ["JR 札幌→桑園 ×4","¥600"],
+      ["市電 往復 ×4","¥1,840"],
+      ["藻岩山 ロープウェイ VELTRA ×4","¥7,560"],
+      ["場外市場 早午餐 ×4","~¥10,000"],
+      ["森彦 珈琲 ×4","~¥3,200"],
+      ["神宮 和菓子","~¥1,600"],
+      ["晚餐 ノースコンチネント ×4","~¥10,000"],
+      ["合計","~¥39,000"]
+    ]
   },
   {
     day: 5, date: "05/19（二）", title: "瀧上芝櫻＆上湧別鬱金香",
@@ -187,7 +223,13 @@ const DAYS = [
       {t:"20:30",a:"🚶 回 MYSTAYS Aspen",n:"步行5分"},
       {t:"20:45~21:30",a:"🍽 晚餐（輕食）",n:"札幌站周邊｜一天坐車較累"}
     ],
-    budget:{transport:"Klook 費用另計",meals:"自備午餐＋晚餐輕食"}
+    budget:[
+      ["Klook 行程 ×4","NT$7,220"],
+      ["地鐵 さっぽろ→大通 ×4","¥840"],
+      ["午餐（自備）","~¥2,000"],
+      ["晚餐（輕食）","~¥4,000"],
+      ["合計","¥6,840 + NT$7,220"]
+    ]
   },
   {
     day: 6, date: "05/20（三）", title: "離境日",
@@ -204,7 +246,12 @@ const DAYS = [
       {t:"~08:20",a:"🛍 管制區內免稅店",n:"最後採購機會"},
       {t:"09:00",a:"✈ 航班起飛",n:"VZ571｜CTS 09:00 → TPE 12:25"}
     ],
-    budget:{transport:"¥4,600 (JR×4)",meals:"~¥4,000"}
+    budget:[
+      ["JR 快速エアポート ×4","¥4,600"],
+      ["SEICOMART ×4","~¥1,600"],
+      ["ROYAL HOST 早餐 ×4","~¥4,000"],
+      ["合計","~¥10,200"]
+    ]
   }
 ];
 
@@ -242,8 +289,10 @@ function render(){
     // Budget
     if(d.budget){
       html+=`<div class="budget"><h3>💰 費用概算（4人）</h3><table>`;
-      html+=`<tr><td>交通</td><td>${d.budget.transport}</td></tr>`;
-      html+=`<tr><td>餐費</td><td>${d.budget.meals}</td></tr>`;
+      d.budget.forEach((b,i,a)=>{
+        const cls=i===a.length-1?' class="total"':'';
+        html+=`<tr${cls}><td>${b[0]}</td><td>${b[1]}</td></tr>`;
+      });
       html+=`</table></div>`;
     }
     html+=`</div>`;
