@@ -41,7 +41,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sa
 .item::before{content:"";position:absolute;left:-16px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--pink);border:2px solid #fff;box-shadow:0 0 0 2px var(--pink);z-index:1}
 .item.bus::before{background:#888;box-shadow:0 0 0 2px #888}
 .item.rest::before{background:#aaa;box-shadow:0 0 0 2px #aaa}
-.card{background:var(--card-bg);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);transition:transform .15s}
+.card{position:relative;background:var(--card-bg);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);transition:transform .15s}
 .card:active{transform:scale(.98)}
 .card .time{font-size:11px;color:var(--pink);font-weight:700;letter-spacing:.3px}
 .card .activity{font-size:14px;font-weight:600;margin:4px 0 2px;line-height:1.4}
@@ -59,6 +59,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sa
 .budget td{padding:4px 0}
 .budget td:last-child{text-align:right;font-family:'SF Mono',Menlo,'Courier New',monospace;font-size:11.5px;white-space:nowrap}
 .budget tr.total td{border-top:1.5px dashed #e0c0cc;padding-top:8px;font-weight:700;color:var(--pink)}
+/* Badge */
+.badge{position:absolute;top:6px;right:8px;background:var(--pink);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;cursor:pointer}
+.card.has-alts{cursor:pointer}
+/* Overlay + Bottom Sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;opacity:0;transition:opacity .25s}
+.overlay.show{opacity:1}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:201;background:#fff;border-radius:16px 16px 0 0;max-height:70vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .25s ease-out;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
+.sheet.show{transform:translateY(0)}
+.sheet-handle{width:36px;height:4px;background:#ccc;border-radius:2px;margin:10px auto 0}
+.sheet-head{display:flex;align-items:center;padding:12px 16px 8px;border-bottom:1px solid var(--border)}
+.sheet-title{flex:1;font-size:14px;font-weight:700;color:var(--pink)}
+.sheet-close{width:28px;height:28px;border:none;background:var(--pink-bg);border-radius:50%;font-size:16px;color:var(--text-light);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sheet-body{overflow-y:auto;padding:12px 16px 24px;-webkit-overflow-scrolling:touch}
+.alt-card{background:var(--pink-light);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.alt-card:last-child{margin-bottom:0}
+.alt-name{font-size:14px;font-weight:700;color:var(--text)}
+.alt-feat{font-size:12px;color:var(--pink);margin-top:2px}
+.alt-detail{font-size:11px;color:var(--text-light);margin-top:6px;line-height:1.6}
+.alt-detail span{display:block}
+.alt-warn{font-size:11px;color:#b85c00;margin-top:4px}
+.alt-map{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--pink);margin-top:6px;text-decoration:none;padding:3px 8px;background:#fff;border-radius:20px;font-weight:500}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:#bbb}
 </style>
@@ -86,9 +107,17 @@ const DAYS = [
       {t:"08:52",a:"🚃 JR 快速エアポート31 發車",n:"新千歳空港→新札幌 28分｜¥1,740/人(含uシート)"},
       {t:"09:20",a:"🚇 JR 新札幌 → 地下鉄 新さっぽろ → 大通",n:"東西線 10站 19分｜¥320/人"},
       {t:"09:47",a:"🔒 大通駅 コインロッカー寄放行李",n:"東西線側 大型 ¥500×4＝¥2,000",m:"大通駅 札幌"},
-      {t:"10:00~11:00",a:"🍽 早餐：SIROYA（ISHIYA 直營）",n:"大通駅北改札直結｜朝焼きクロワッサン+ドリンク ¥500｜コーヒー無限續杯",m:"シロヤ SIROYA 札幌大通"},
+      {t:"10:00~11:00",a:"🍽 早餐：SIROYA（ISHIYA 直營）",n:"大通駅北改札直結｜朝焼きクロワッサン+ドリンク ¥500｜コーヒー無限續杯",m:"シロヤ SIROYA 札幌大通",alts:[
+        {name:"FAbULOUS",feat:"時尚咖啡廳 Morning set",hours:"09:00-19:00｜Morning L.O.10:30",menu:"朝食プレート",price:"~¥1,000/人",warn:"L.O.10:30 僅 30 分，時間緊張",map:"FAbULOUS ファビュラス 札幌"},
+        {name:"さえら",feat:"創業50年・たらばがにサラダサンド",hours:"10:00-18:00｜定休：水曜",menu:"たらばがにサラダサンド・フルーツサンド",price:"~¥1,000/人",warn:"10:00 開店需排隊 15-20 分",map:"さえら 札幌"},
+        {name:"丸美珈琲店 大通公園本店",feat:"世界大賽第3位鑑定士・自家焙煎",hours:"09:00-19:00",menu:"スペシャルティコーヒー",price:"~¥800/人",warn:"僅 22 席，無早餐套餐",map:"丸美珈琲店 大通公園本店 札幌"}
+      ]},
       {t:"11:05~11:20",a:"🌽 とうきびワゴン",n:"大通公園 西3-4丁目｜焼きとうきび ¥500／じゃがバター ¥300",m:"大通公園 とうきびワゴン 札幌"},
-      {t:"11:20~11:40",a:"📸 さっぽろテレビ塔 外觀拍照",n:"西1丁目｜展望台 ¥1,000（可略過）",m:"さっぽろテレビ塔"},
+      {t:"11:20~11:40",a:"📸 さっぽろテレビ塔 外觀拍照",n:"西1丁目｜展望台 ¥1,000（可略過）",m:"さっぽろテレビ塔",alts:[
+        {name:"札幌市時計台",feat:"札幌地標・外觀拍照免費",hours:"08:45-17:10",price:"入館 ¥350",map:"札幌市時計台"},
+        {name:"赤れんが庁舎",feat:"北海道廳舊本廳舍・2025 翻新完成",hours:"09:00-17:00",price:"免費",map:"北海道庁旧本庁舎 赤れんが"},
+        {name:"4PLA 札幌4丁目プレイス",feat:"2025 新設施・3F 免費露台",hours:"商業設施營業時間",price:"免費",map:"4PLA 札幌4丁目プレイス"}
+      ]},
       {t:"11:40~12:10",a:"🍦 大通ビッセ BISSE SWEETS",n:"きのとや「オムパフェ」¥594（限定）・町村農場「牧場ミルクソフト」¥418",m:"大通ビッセ 札幌"},
       {t:"12:30",a:"🔒 取回行李",n:"大通駅 コインロッカー"},
       {t:"12:45",a:"🚌 札幌→洞爺湖 湖之栖無料送迎バス",n:"集合：カナモトホール駐車場前 12:45｜出発 13:00",m:"カナモトホール 札幌"},
@@ -125,9 +154,13 @@ const DAYS = [
       {t:"13:00",a:"🚌 道南バス 洞爺湖温泉発",n:"完全予約制｜約2.5hr→すすきの",c:true},
       {t:"~15:30",a:"🏨 Check-in Comfort Hotel",n:"📍南5西1｜無料朝食付",m:"コンフォートホテル札幌すすきの"},
       {t:"16:20~17:15",a:"🛍 狸小路散策（去程）1→7丁目",n:"經6丁目先買新倉屋「花園だんご」",m:"狸小路商店街 札幌"},
-      {t:"17:30~18:30",a:"🍛 晚餐：SOUL STORE",n:"📍南3西7 2F｜スープカレー ¥1,300~2,000/人｜定休：月曜",m:"SOUL STORE スープカレー 札幌"},
+      {t:"17:30~18:30",a:"🍛 晚餐：SOUL STORE",n:"📍南3西7 2F｜スープカレー ¥1,300~2,000/人｜定休：月曜",m:"SOUL STORE スープカレー 札幌",alts:[
+        {name:"GARAKU 本店",feat:"札幌スープカレー名店",hours:"11:30-15:00, 17:00-21:30",menu:"やわらかチキンレッグ＋野菜",price:"~¥1,500/人",warn:"2025/10 移轉新址：南3東2丁目6-1 B1F",map:"GARAKU スープカレー 札幌"}
+      ]},
       {t:"18:30~20:25",a:"🛍 狸小路回程重點購物",n:"藥妝比價（サンドラッグ・ツルハ・マツキヨ）"},
-      {t:"20:35~21:15",a:"🍨 シメパフェ：INITIAL SAPPORO",n:"📍南3西5 狸小路5丁目｜15:00～24:00｜~¥2,000~3,000/人",m:"INITIAL SAPPORO 札幌"},
+      {t:"20:35~21:15",a:"🍨 シメパフェ：INITIAL SAPPORO",n:"📍南3西5 狸小路5丁目｜15:00～24:00｜~¥2,000~3,000/人",m:"INITIAL SAPPORO 札幌",alts:[
+        {name:"ななかま堂",feat:"和風シメパフェ",hours:"金・土 19:00-翌2:00（L.O.1:30）",menu:"季節のパフェ",price:"~¥2,000/人",warn:"金・土のみ営業｜☎ 011-596-8607",map:"ななかま堂 札幌"}
+      ]},
       {t:"21:15",a:"🚶 回飯店",n:"約8~10分"}
     ],
     budget:[
@@ -152,7 +185,9 @@ const DAYS = [
       {t:"09:20~09:40",a:"🚶 小樽駅 → 小樽運河",n:"中央通り直行 徒歩約10分",m:"小樽運河 浅草橋"},
       {t:"09:40~10:00",a:"📸 小樽運河・浅草橋街園",n:"經典拍照點｜石造倉庫群",m:"小樽運河"},
       {t:"10:10",a:"📝 ぜん庵 記名候位",n:"11:00 開店前排隊",m:"おたる政寿司 ぜん庵"},
-      {t:"11:00~12:00",a:"🍣 午餐：おたる政寿司 ぜん庵",n:"📍色内1-2-1（運河旁）｜茜/萩 ¥4,180・匠 ¥6,600",m:"おたる政寿司 ぜん庵"},
+      {t:"11:00~12:00",a:"🍣 午餐：おたる政寿司 ぜん庵",n:"📍色内1-2-1（運河旁）｜茜/萩 ¥4,180・匠 ¥6,600",m:"おたる政寿司 ぜん庵",alts:[
+        {name:"積丹料理 ふじ鮨 小樽店",feat:"堺町通り上・排隊備案",hours:"11:00-20:00｜定休：木曜",menu:"札幌にぎり ¥2,800",price:"~¥2,800/人",warn:"ぜん庵排隊太長時的替代方案",map:"ふじ鮨 小樽店"}
+      ]},
       {t:"12:10~12:25",a:"🍥 かま栄 工場直売店",n:"📍堺町3-7｜パンロール ~¥230",m:"かま栄 工場直売店 小樽"},
       {t:"12:25~12:45",a:"🚶 堺町通り散策",n:"3→7丁目 途中雜貨・硝子小店",m:"堺町通り 小樽"},
       {t:"12:45~13:15",a:"🏛 北一硝子 三号館",n:"📍堺町7-26｜167盞石油ランプ",m:"北一硝子 三号館 小樽"},
@@ -192,7 +227,11 @@ const DAYS = [
       {t:"18:15~19:15",a:"🌃 藻岩山展望台 夜景",n:"日落 18:54｜トワイライト 19:10~19:25｜日本新三大夜景",m:"藻岩山展望台"},
       {t:"19:15~19:45",a:"🚡 下山＋シャトルバス",n:""},
       {t:"19:45~20:09",a:"🚃 市電 ロープウェイ入口→西4丁目",n:"¥230/人｜外回り 約24分"},
-      {t:"20:15~21:15",a:"🍖 ノースコンチネント まちのなか店",n:"📍南2西1-6 B1F｜L.O.21:30｜¥2,000~3,000/人｜要事前預約",m:"ノースコンチネント まちのなか店 札幌"},
+      {t:"20:15~21:15",a:"🍖 ノースコンチネント まちのなか店",n:"📍南2西1-6 B1F｜L.O.21:30｜¥2,000~3,000/人｜要事前預約",m:"ノースコンチネント まちのなか店 札幌",alts:[
+        {name:"ビーフインパクト 狸小路店",feat:"炭焼きステーキ＆ハンバーグ",hours:"11:00-22:00（L.O.22:00）",menu:"黒毛和牛ハンバーグ",price:"~¥3,000-4,000/人",warn:"ほぼ年中無休",map:"ビーフインパクト 狸小路店 札幌"},
+        {name:"札幌牛亭 南3条店",feat:"牛100% つなぎなしハンバーグ",hours:"11:30-22:00（L.O.21:30）",menu:"特製ハンバーグステーキ",price:"~¥1,500-2,500/人",warn:"定休：水曜",map:"札幌牛亭 南3条店"},
+        {name:"ひげ 南5条本店",feat:"荒挽きハンバーグ＆サガリステーキ",hours:"17:00-22:00（L.O.21:30）",menu:"荒挽きハンバーグ",price:"~¥2,000/人",warn:"僅 8 席，可能需等候",map:"ひげ 南5条本店 札幌"}
+      ]},
       {t:"21:30",a:"🚶 回 MYSTAYS Aspen",n:"大通→さっぽろ（2分）＋步行5分 ≈ 12~14分"}
     ],
     budget:[
@@ -276,9 +315,11 @@ function render(){
     html+=`</div>`;
     // Timeline
     html+=`<div class="timeline">`;
-    d.items.forEach(it=>{
+    d.items.forEach((it,idx)=>{
       const cls=it.c?'item bus':'item';
-      html+=`<div class="${cls}"><div class="card${it.c?' compact':''}">`;
+      const hasAlts=it.alts&&it.alts.length>0;
+      html+=`<div class="${cls}"><div class="card${it.c?' compact':''}${hasAlts?' has-alts':''}"${hasAlts?` data-day="${d.day}" data-idx="${idx}"`:''}>`;
+      if(hasAlts)html+=`<div class="badge">+${it.alts.length}</div>`;
       html+=`<div class="time">${it.t}</div>`;
       html+=`<div class="activity">${it.a}</div>`;
       if(it.n)html+=`<div class="notes">${it.n.replace(/⚠️/g,'<span class="warn-text">⚠️</span>')}</div>`;
@@ -327,11 +368,62 @@ function render(){
     }
   },{passive:true});
 
+  // Card click → open alt sheet
+  content.addEventListener('click',e=>{
+    if(e.target.closest('.map-link'))return;
+    const card=e.target.closest('.card.has-alts');
+    if(!card)return;
+    const day=+card.dataset.day, idx=+card.dataset.idx;
+    const it=DAYS.find(d=>d.day===day).items[idx];
+    if(it&&it.alts)openSheet(it.alts,it.a);
+  });
+
   // Auto-select today or Day 1
   const today=new Date();
   const dayMap={15:1,16:2,17:3,18:4,19:5,20:6};
   const autoDay=(today.getFullYear()===2026&&today.getMonth()===4)?dayMap[today.getDate()]||1:1;
   setDay(autoDay);
+}
+
+/* Bottom Sheet */
+function openSheet(alts,title){
+  closeSheet();
+  const overlay=document.createElement('div');
+  overlay.className='overlay';
+  const sheet=document.createElement('div');
+  sheet.className='sheet';
+  let body='';
+  alts.forEach(a=>{
+    body+=`<div class="alt-card">`;
+    body+=`<div class="alt-name">${a.name}</div>`;
+    body+=`<div class="alt-feat">${a.feat}</div>`;
+    body+=`<div class="alt-detail">`;
+    if(a.hours)body+=`<span>🕐 ${a.hours}</span>`;
+    if(a.menu)body+=`<span>🍽 ${a.menu}</span>`;
+    if(a.price)body+=`<span>💰 ${a.price}</span>`;
+    body+=`</div>`;
+    if(a.warn)body+=`<div class="alt-warn">⚠️ ${a.warn}</div>`;
+    if(a.map)body+=`<a class="alt-map" href="${mapUrl(a.map)}" target="_blank" rel="noopener">📍 Google Maps</a>`;
+    body+=`</div>`;
+  });
+  sheet.innerHTML=`<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-title">備選方案</div><button class="sheet-close">✕</button></div><div class="sheet-body">${body}</div>`;
+  document.body.appendChild(overlay);
+  document.body.appendChild(sheet);
+  requestAnimationFrame(()=>{overlay.classList.add('show');sheet.classList.add('show')});
+  overlay.addEventListener('click',closeSheet);
+  sheet.querySelector('.sheet-close').addEventListener('click',closeSheet);
+  // Swipe down to close
+  let ty=0;
+  sheet.addEventListener('touchstart',e=>{ty=e.touches[0].clientY},{passive:true});
+  sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-ty>80)closeSheet()},{passive:true});
+}
+function closeSheet(){
+  const o=document.querySelector('.overlay');
+  const s=document.querySelector('.sheet');
+  if(!o&&!s)return;
+  if(o)o.classList.remove('show');
+  if(s)s.classList.remove('show');
+  setTimeout(()=>{if(o)o.remove();if(s)s.remove()},250);
 }
 
 render();
