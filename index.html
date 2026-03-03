@@ -83,8 +83,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Ro
 .card .activity a{color:var(--text);text-decoration:none;border-bottom:1px dashed var(--accent)}
 .card .notes{font-size:11.5px;color:var(--text-light);line-height:1.5;margin-top:4px}
 .card .notes .warn-text{color:#b85c00}
-.card .map-link{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--accent);margin-top:6px;text-decoration:none;padding:3px 8px;background:var(--bg);border-radius:20px;font-weight:500;transition:background .15s}
-.card .map-link:active{background:#e5e5ea}
+/* Map button — right side strip */
+.card.has-map{display:flex;overflow:hidden;padding-right:0}
+.card-main{flex:1;min-width:0}
+.card-map-btn{display:flex;align-items:center;justify-content:center;width:44px;flex-shrink:0;margin:-100px 0;padding:100px 0;border-left:1px solid rgba(0,0,0,.08);text-decoration:none;color:var(--accent);font-size:18px;transition:background .15s}
+.card-map-btn:active{background:rgba(0,113,227,.1)}
+.card.has-map .badge{right:52px}
 .card.compact{padding:8px 14px}
 .card.compact .activity{font-size:12px;font-weight:500;color:var(--text-light)}
 /* Budget section */
@@ -368,72 +372,74 @@ function getCat(a){
 function extractEmoji(s){const m=s.match(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u);return m?m[0]:''}
 function renderTags(tags){if(!tags||!tags.length)return '';return '<div class="tags">'+tags.map(t=>`<span class="tag">${t}</span>`).join('')+'</div>'}
 function warnN(n){return n?`<div class="notes">${n.replace(/⚠️/g,'<span class="warn-text">⚠️</span>')}</div>`:''}
-function mapLink(m){return m?`<a class="map-link" href="${mapUrl(m)}" target="_blank" rel="noopener">📍 Google Maps</a>`:''}
-function cardOpen(cls,it,dayNum,idx){const ha=it.alts&&it.alts.length>0;return `<div class="card ${cls}${it.c?' compact':''}${ha?' has-alts':''}"${ha?` data-day="${dayNum}" data-idx="${idx}"`:''}>` + (ha?`<div class="badge">+${it.alts.length}</div>`:'')}
+function mainOpen(m){return m?'<div class="card-main">':''}
+function mainClose(m){return m?'</div>':''}
+function mapBtn(m){return m?`<a class="card-map-btn" href="${mapUrl(m)}" target="_blank" rel="noopener" aria-label="Google Maps">📍</a>`:''}
+function cardOpen(cls,it,dayNum,idx){const ha=it.alts&&it.alts.length>0;const hm=!!it.m;return `<div class="card ${cls}${it.c?' compact':''}${ha?' has-alts':''}${hm?' has-map':''}"${ha?` data-day="${dayNum}" data-idx="${idx}"`:''}>` + (ha?`<div class="badge">+${it.alts.length}</div>`:'')}
 
 function renderTransportRoute(it,dayNum,idx){
   const e=extractEmoji(it.a);
-  let h=cardOpen('card-transport',it,dayNum,idx);
+  let h=cardOpen('card-transport',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div>`;
   h+=`<div class="activity">${it.a}</div>`;
   h+=`<div class="route"><span class="route-from">${it.from}</span><span class="route-line"></span><span class="route-to">${it.to}</span></div>`;
   const allTags=[it.dur,...(it.tags||[])];
   h+=renderTags(allTags);
-  h+=warnN(it.n)+mapLink(it.m)+`</div>`;
+  h+=warnN(it.n)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderTransportSimple(it,dayNum,idx){
-  let h=cardOpen('card-transport',it,dayNum,idx);
+  let h=cardOpen('card-transport',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div><div class="activity">${it.a}</div>`;
-  h+=warnN(it.n)+renderTags(it.tags)+mapLink(it.m)+`</div>`;
+  h+=warnN(it.n)+renderTags(it.tags)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderFoodCard(it,dayNum,idx){
   const e=extractEmoji(it.a);
-  let h=cardOpen('card-food',it,dayNum,idx);
+  let h=cardOpen('card-food',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div>`;
   h+=`<div class="card-header">`;
   if(e)h+=`<div class="card-icon">${e}</div>`;
   h+=`<div class="card-body"><div class="card-shop">${it.shop}</div>`;
   if(it.desc)h+=`<div class="card-desc">${it.desc}</div>`;
   h+=`</div></div>`;
-  h+=warnN(it.n)+renderTags(it.tags)+mapLink(it.m)+`</div>`;
+  h+=warnN(it.n)+renderTags(it.tags)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderFoodSimple(it,dayNum,idx){
-  let h=cardOpen('card-food',it,dayNum,idx);
+  let h=cardOpen('card-food',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div><div class="activity">${it.a}</div>`;
-  h+=warnN(it.n)+renderTags(it.tags)+mapLink(it.m)+`</div>`;
+  h+=warnN(it.n)+renderTags(it.tags)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderSpotCard(it,dayNum,idx){
   const e=extractEmoji(it.a);
-  let h=cardOpen('card-spot',it,dayNum,idx);
+  let h=cardOpen('card-spot',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div>`;
   h+=`<div class="card-header">`;
   if(e)h+=`<div class="card-icon">${e}</div>`;
   h+=`<div class="card-body"><div class="activity">${it.a}</div>`;
   h+=warnN(it.n);
   h+=`</div></div>`;
-  h+=renderTags(it.tags)+mapLink(it.m)+`</div>`;
+  h+=renderTags(it.tags)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderHotelCard(it,dayNum,idx){
   const e=extractEmoji(it.a);
-  let h=cardOpen('card-hotel',it,dayNum,idx);
+  let h=cardOpen('card-hotel',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div>`;
   h+=`<div class="card-header">`;
   if(e)h+=`<div class="card-icon">${e}</div>`;
   h+=`<div class="card-body"><div class="activity">${it.a}</div>`;
   h+=warnN(it.n);
   h+=`</div></div>`;
-  h+=renderTags(it.tags)+mapLink(it.m)+`</div>`;
+  h+=renderTags(it.tags)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderDefaultCard(it,dayNum,idx){
-  let h=cardOpen('',it,dayNum,idx);
+  let h=cardOpen('',it,dayNum,idx)+mainOpen(it.m);
   h+=`<div class="time">${it.t}</div><div class="activity">${it.a}</div>`;
-  h+=warnN(it.n)+mapLink(it.m)+`</div>`;
+  h+=warnN(it.n)+mainClose(it.m)+mapBtn(it.m)+`</div>`;
   return h;
 }
 function renderCard(it,cat,dayNum,idx){
@@ -518,7 +524,7 @@ function render(){
 
   // Card click → open alt sheet
   content.addEventListener('click',e=>{
-    if(e.target.closest('.map-link'))return;
+    if(e.target.closest('.card-map-btn'))return;
     const card=e.target.closest('.card.has-alts');
     if(!card)return;
     const day=+card.dataset.day, idx=+card.dataset.idx;
