@@ -456,11 +456,11 @@ function updateRateUI(){
 
 function calcFromJpy(){
   const v=parseFloat(document.getElementById('calc-jpy').value)||0;
-  document.getElementById('calc-twd').value=v?Math.round(v*currentRate).toLocaleString():'';
+  document.getElementById('calc-twd').value=v?Math.round(v*currentRate):'';
 }
 function calcFromTwd(){
-  const v=parseFloat(document.getElementById('calc-twd').value.replace(/,/g,''))||0;
-  document.getElementById('calc-jpy').value=v?Math.round(v/currentRate).toLocaleString():'';
+  const v=parseFloat(document.getElementById('calc-twd').value)||0;
+  document.getElementById('calc-jpy').value=v?Math.round(v/currentRate):'';
 }
 
 function renderDashboard(){
