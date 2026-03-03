@@ -80,6 +80,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sa
 .alt-detail span{display:block}
 .alt-warn{font-size:11px;color:#b85c00;margin-top:4px}
 .alt-map{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--pink);margin-top:6px;text-decoration:none;padding:3px 8px;background:#fff;border-radius:20px;font-weight:500}
+/* Dashboard */
+.dash-section{background:var(--card-bg);border-radius:14px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.dash-section h3{font-size:13px;font-weight:700;color:var(--pink);margin-bottom:8px}
+.dash-warn{font-size:12px;color:#b85c00;background:#fff8ef;border-left:3px solid #f0a030;padding:6px 10px;margin-bottom:6px;border-radius:0 8px 8px 0;line-height:1.5}
+.dash-warn:last-child{margin-bottom:0}
+.dash-table{width:100%;font-size:12px;border-collapse:collapse}
+.dash-table td{padding:4px 0}
+.dash-table td:last-child{text-align:right;font-family:'SF Mono',Menlo,'Courier New',monospace;font-size:11.5px;white-space:nowrap}
+.dash-table tr.total td{border-top:1.5px dashed #e0c0cc;padding-top:8px;font-weight:700;color:var(--pink)}
+.calc-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.calc-label{font-size:14px;font-weight:700;width:36px;text-align:right}
+.calc-input{flex:1;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:16px;font-family:'SF Mono',Menlo,'Courier New',monospace;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.calc-input:focus{border-color:var(--pink)}
+.calc-arrow{text-align:center;font-size:16px;color:var(--pink);margin:-4px 0 -4px 44px}
+.rate-status{font-size:11px;color:var(--text-light);margin-top:8px;display:flex;align-items:center;gap:4px}
+.rate-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.rate-dot.online{background:#4caf50}
+.rate-dot.cached{background:#ffc107}
+.rate-dot.fallback{background:#ccc}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:#bbb}
 </style>
@@ -96,6 +115,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hiragino Sa
 <div class="footer">離線可用 · 可安裝至桌面 · 點擊地點開啟 Google Maps</div>
 
 <script>
+const GLOBAL_WARNS = [
+  "護照效期需 6 個月以上",
+  "全程建議用 IC 卡（Suica/ICOCA）搭車",
+  "日本入境需事先填寫 Visit Japan Web",
+  "HIS 遊覧船折扣須列印紙本（截圖無效）"
+];
+const FALLBACK_RATE = 0.218;
+
 const DAYS = [
   {
     day: 1, date: "05/15（五）", title: "入境 → 洞爺湖",
@@ -300,13 +327,16 @@ function render(){
   const tabs=document.getElementById('tabs');
   const content=document.getElementById('content');
 
-  // Tabs
-  tabs.innerHTML=DAYS.map(d=>
+  // Tabs (🏠 + Day 1~6)
+  tabs.innerHTML=`<div class="tab" data-day="0">🏠<br><span style="font-size:10px;font-weight:400">總覽</span></div>`+DAYS.map(d=>
     `<div class="tab" data-day="${d.day}">Day ${d.day}<br><span style="font-size:10px;font-weight:400">${d.date.slice(0,5)}</span></div>`
   ).join('');
 
+  // Dashboard view
+  content.innerHTML=`<div class="day-view" id="day0"></div>`+
+
   // Day views
-  content.innerHTML=DAYS.map(d=>{
+  DAYS.map(d=>{
     let html=`<div class="day-view" id="day${d.day}">`;
     // Header
     html+=`<div class="day-header"><div class="date">Day ${d.day} — ${d.date}</div><div class="date" style="font-size:14px;color:var(--text);margin-top:2px">${d.title}</div>`;
@@ -341,12 +371,12 @@ function render(){
   }).join('');
 
   // Tab switching
-  let active=1;
+  let active=0;
   function setDay(n){
     active=n;
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.day===n));
     document.querySelectorAll('.day-view').forEach(v=>v.classList.toggle('active',v.id===`day${n}`));
-    // scroll tab into view
+    if(n===0)renderDashboard();
     const at=document.querySelector('.tab.active');
     if(at)at.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
     window.scrollTo({top:0,behavior:'smooth'});
@@ -364,7 +394,7 @@ function render(){
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){
       if(dx<0&&active<6)setDay(active+1);
-      else if(dx>0&&active>1)setDay(active-1);
+      else if(dx>0&&active>0)setDay(active-1);
     }
   },{passive:true});
 
@@ -378,11 +408,116 @@ function render(){
     if(it&&it.alts)openSheet(it.alts,it.a);
   });
 
-  // Auto-select today or Day 1
+  // Auto-select: during trip → today's day, otherwise → dashboard
   const today=new Date();
   const dayMap={15:1,16:2,17:3,18:4,19:5,20:6};
-  const autoDay=(today.getFullYear()===2026&&today.getMonth()===4)?dayMap[today.getDate()]||1:1;
+  const autoDay=(today.getFullYear()===2026&&today.getMonth()===4)?dayMap[today.getDate()]||0:0;
   setDay(autoDay);
+}
+
+/* Dashboard */
+let currentRate=FALLBACK_RATE;
+let rateSource='fallback';
+let rateTime='';
+
+async function fetchRate(){
+  // Try localStorage first
+  const cached=localStorage.getItem('jpy_rate');
+  const cachedTime=localStorage.getItem('jpy_rate_time');
+  if(cached){currentRate=+cached;rateSource='cached';rateTime=cachedTime||'';}
+  // Try network
+  try{
+    const r=await fetch('https://open.er-api.com/v6/latest/JPY');
+    const j=await r.json();
+    if(j.result==='success'&&j.rates&&j.rates.TWD){
+      currentRate=j.rates.TWD;
+      rateSource='online';
+      rateTime=new Date().toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+      localStorage.setItem('jpy_rate',currentRate);
+      localStorage.setItem('jpy_rate_time',rateTime);
+    }
+  }catch(e){}
+  // Update UI if dashboard is visible
+  updateRateUI();
+}
+
+function updateRateUI(){
+  const el=document.getElementById('rate-status');
+  if(!el)return;
+  const dotCls=rateSource==='online'?'online':rateSource==='cached'?'cached':'fallback';
+  const label=rateSource==='online'?`線上即時 · ${rateTime}`:rateSource==='cached'?`離線快取 · ${rateTime}`:'預設匯率（無快取）';
+  el.innerHTML=`<span class="rate-dot ${dotCls}"></span>${label}`;
+  const rateVal=document.getElementById('rate-value');
+  if(rateVal)rateVal.textContent=currentRate.toFixed(4);
+  // Recalc
+  const jpyInput=document.getElementById('calc-jpy');
+  if(jpyInput&&jpyInput.value)calcFromJpy();
+}
+
+function calcFromJpy(){
+  const v=parseFloat(document.getElementById('calc-jpy').value)||0;
+  document.getElementById('calc-twd').value=v?Math.round(v*currentRate).toLocaleString():'';
+}
+function calcFromTwd(){
+  const v=parseFloat(document.getElementById('calc-twd').value.replace(/,/g,''))||0;
+  document.getElementById('calc-jpy').value=v?Math.round(v/currentRate).toLocaleString():'';
+}
+
+function renderDashboard(){
+  const el=document.getElementById('day0');
+  // Warns
+  let warns='<div class="dash-section"><h3>⚠️ 注意事項</h3>';
+  GLOBAL_WARNS.forEach(w=>warns+=`<div class="dash-warn">${w}</div>`);
+  DAYS.forEach(d=>d.warns.forEach(w=>warns+=`<div class="dash-warn">Day ${d.day}：${w}</div>`));
+  warns+='</div>';
+
+  // Budget summary
+  const jpyAmounts=[];
+  let twdTotal=0;
+  DAYS.forEach(d=>{
+    if(!d.budget)return;
+    const totalRow=d.budget[d.budget.length-1];
+    const totalStr=totalRow[1];
+    // Extract JPY amount
+    const jpyMatch=totalStr.match(/[~]?[¥￥]([0-9,]+)/);
+    if(jpyMatch)jpyAmounts.push({day:d.day,title:d.title,jpy:parseInt(jpyMatch[1].replace(/,/g,''))});
+    // Extract NT$ amount
+    const ntMatch=totalStr.match(/NT\$([0-9,]+)/);
+    if(ntMatch)twdTotal+=parseInt(ntMatch[1].replace(/,/g,''));
+  });
+  const jpyTotal=jpyAmounts.reduce((s,x)=>s+x.jpy,0);
+
+  let budget='<div class="dash-section"><h3>💰 預估總花費（4人）</h3><table class="dash-table">';
+  jpyAmounts.forEach(x=>{
+    budget+=`<tr><td>Day ${x.day} ${x.title}</td><td>~¥${x.jpy.toLocaleString()}</td></tr>`;
+  });
+  if(twdTotal>0){
+    budget+=`<tr><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
+  }
+  budget+=`<tr class="total"><td>日幣小計</td><td>~¥${jpyTotal.toLocaleString()}</td></tr>`;
+  if(twdTotal>0){
+    budget+=`<tr class="total"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
+  }
+  const grandTotal=Math.round(jpyTotal*currentRate)+twdTotal;
+  budget+=`<tr class="total"><td>換算總計</td><td>≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
+  budget+='</table></div>';
+
+  // Calculator
+  const dotCls=rateSource==='online'?'online':rateSource==='cached'?'cached':'fallback';
+  const rateLabel=rateSource==='online'?`線上即時 · ${rateTime}`:rateSource==='cached'?`離線快取 · ${rateTime}`:'預設匯率（無快取）';
+  let calc='<div class="dash-section"><h3>💱 日幣計算機</h3>';
+  calc+=`<div class="calc-row"><span class="calc-label">¥</span><input class="calc-input" id="calc-jpy" type="number" inputmode="numeric" placeholder="日幣金額"></div>`;
+  calc+=`<div class="calc-arrow">↕</div>`;
+  calc+=`<div class="calc-row"><span class="calc-label">NT$</span><input class="calc-input" id="calc-twd" type="number" inputmode="numeric" placeholder="台幣金額"></div>`;
+  calc+=`<div class="rate-status" id="rate-status"><span class="rate-dot ${dotCls}"></span>${rateLabel}</div>`;
+  calc+=`<div style="font-size:11px;color:var(--text-light);margin-top:2px">匯率 <span id="rate-value">${currentRate.toFixed(4)}</span></div>`;
+  calc+='</div>';
+
+  el.innerHTML=warns+budget+calc;
+
+  // Bind calculator events
+  document.getElementById('calc-jpy').addEventListener('input',calcFromJpy);
+  document.getElementById('calc-twd').addEventListener('input',calcFromTwd);
 }
 
 /* Bottom Sheet */
@@ -427,6 +562,7 @@ function closeSheet(){
 }
 
 render();
+fetchRate();
 
 // Register service worker
 if('serviceWorker' in navigator){
