@@ -14,11 +14,13 @@
 :root{--accent:#0071e3;--bg:#f5f5f7;--text:#1d1d1f;--text-light:#86868b;--card-bg:#fff;--border:#e5e5ea;--shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.06);--cat-transport:#5ac8fa;--cat-food:#ff9500;--cat-spot:#34c759;--cat-hotel:#af52de;--cat-default:#e5e5ea}
 body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Hiragino Sans",sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 /* Header — frosted glass */
-.header{background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);color:var(--text);padding:16px 16px 12px;text-align:center;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.08)}
+.header{background:rgba(245,245,247,.92);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);color:var(--text);padding:16px 16px 12px;text-align:center;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(0,0,0,.08)}
+@supports(backdrop-filter:blur(1px)){.header{background:rgba(255,255,255,.72)}}
 .header h1{font-size:18px;font-weight:800;letter-spacing:-.2px}
 .header .sub{font-size:12px;color:var(--text-light);margin-top:3px;font-weight:500}
 /* Tab bar — frosted glass */
-.tabs{display:flex;position:sticky;top:53px;z-index:99;background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs{display:flex;position:sticky;top:53px;z-index:99;background:rgba(245,245,247,.92);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid rgba(0,0,0,.08);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+@supports(backdrop-filter:blur(1px)){.tabs{background:rgba(255,255,255,.72)}}
 .tabs::-webkit-scrollbar{display:none}
 .tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:600;color:var(--text-light);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s;user-select:none}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
@@ -568,7 +570,7 @@ function renderFoodCard(it,dayNum,idx){
   h+=`<div class="card-header">`;
   if(e)h+=`<div class="card-icon">${e}</div>`;
   h+=`<div class="card-body"><div class="card-shop">${it.shop}</div>`;
-  if(it.desc)h+=`<div class="card-desc">${it.desc}</div>`;
+  if(it.desc||it.oneliner)h+=`<div class="card-desc">${it.desc||it.oneliner}</div>`;
   h+=`</div></div>`;
   h+=`<div class="card-chevron">▾</div>`;
   h+=renderFoodDetail(it);
@@ -763,7 +765,7 @@ function render(){
     active=n;
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.day===n));
     document.querySelectorAll('.day-view').forEach(v=>v.classList.toggle('active',v.id===`day${n}`));
-    if(n===0)renderDashboard();
+    if(n===0){if(!_dashRendered)renderDashboard();else updateSouvTotal();}
     // Reset sub-tabs to first tab
     const dv=document.getElementById(`day${n}`);
     if(dv){
@@ -991,6 +993,15 @@ function bindSouvenirEvents(){
   });
 }
 
+let _dashRendered=false;
+function updateSouvTotal(){
+  const el=document.querySelector('[data-section="souvenir"] .souv-total');
+  if(!el)return;
+  const state=loadSouvState();
+  let cnt=0,total=0;
+  state.forEach((st,i)=>{if(st.checked&&st.qty>0){cnt+=st.qty;total+=st.qty*SOUVENIRS[i].price;}});
+  el.innerHTML=cnt>0?`🛒 ${cnt} 件 · <span class="mono">¥${total.toLocaleString()}</span> ≈ <span class="mono">NT$${Math.round(total*currentRate).toLocaleString()}</span>`:'尚未選擇伴手禮';
+}
 function renderDashboard(){
   const el=document.getElementById('day0');
   // Sub-tabs
@@ -1053,11 +1064,13 @@ function renderDashboard(){
   document.getElementById('calc-twd').addEventListener('input',calcFromTwd);
   // Bind souvenir events
   bindSouvenirEvents();
+  _dashRendered=true;
 }
 
 /* Bottom Sheet */
+let _sheetOverlay=null,_sheetEl=null;
 function openSheet(alts,title){
-  closeSheet();
+  closeSheet(true);
   const overlay=document.createElement('div');
   overlay.className='overlay';
   const sheet=document.createElement('div');
@@ -1067,6 +1080,7 @@ function openSheet(alts,title){
   sheet.innerHTML=`<div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-title">備選方案</div><button class="sheet-close">✕</button></div><div class="sheet-body">${body}</div>`;
   document.body.appendChild(overlay);
   document.body.appendChild(sheet);
+  _sheetOverlay=overlay;_sheetEl=sheet;
   requestAnimationFrame(()=>{overlay.classList.add('show');sheet.classList.add('show')});
   overlay.addEventListener('click',closeSheet);
   sheet.querySelector('.sheet-close').addEventListener('click',closeSheet);
@@ -1075,10 +1089,11 @@ function openSheet(alts,title){
   sheet.addEventListener('touchstart',e=>{ty=e.touches[0].clientY},{passive:true});
   sheet.addEventListener('touchend',e=>{if(e.changedTouches[0].clientY-ty>80)closeSheet()},{passive:true});
 }
-function closeSheet(){
-  const o=document.querySelector('.overlay');
-  const s=document.querySelector('.sheet');
+function closeSheet(immediate){
+  const o=_sheetOverlay,s=_sheetEl;
+  _sheetOverlay=null;_sheetEl=null;
   if(!o&&!s)return;
+  if(immediate){if(o)o.remove();if(s)s.remove();return;}
   if(o)o.classList.remove('show');
   if(s)s.classList.remove('show');
   setTimeout(()=>{if(o)o.remove();if(s)s.remove()},250);
