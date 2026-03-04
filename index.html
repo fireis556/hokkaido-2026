@@ -225,6 +225,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Ro
 .souv-price{font-size:12px;font-weight:600;color:var(--text);font-family:'SF Mono',Menlo,'Courier New',monospace;white-space:nowrap;flex-shrink:0}
 .souv-total{background:var(--card-bg);border-radius:16px;padding:12px 16px;margin-top:8px;box-shadow:var(--shadow);font-size:13px;color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600}
 .souv-total .mono{font-family:'SF Mono',Menlo,'Courier New',monospace}
+/* Souvenir shop expand */
+.souv-pin{font-size:11px;color:var(--accent);cursor:pointer;flex-shrink:0;padding:2px 4px;transition:transform .2s}
+.souv-item.shop-open .souv-pin{transform:rotate(180deg)}
+.souv-shops{max-height:0;overflow:hidden;opacity:0;transition:max-height .3s ease,opacity .2s;grid-column:1/5;padding:0 0 0 30px}
+.souv-item.shop-open .souv-shops{max-height:200px;opacity:1;padding-top:4px}
+.souv-shop-divider{border:none;height:1px;background:linear-gradient(90deg,var(--accent),transparent);margin:0 0 6px}
+.souv-shop-area{font-size:11px;font-weight:700;color:var(--text-light);margin:4px 0 2px}
+.souv-shop-link{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--accent);text-decoration:none;padding:4px 8px;margin:2px 0;background:rgba(0,113,227,.04);border-radius:8px;transition:background .15s}
+.souv-shop-link:active{background:rgba(0,113,227,.12)}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:var(--text-light)}
 </style>
@@ -250,14 +259,44 @@ const GLOBAL_WARNS = [
 const FALLBACK_RATE = 0.218;
 
 const SOUVENIRS=[
-  {name:'白い恋人',brand:'石屋製菓',price:1036,unit:'12枚',store:'常溫',emoji:'🍪'},
-  {name:'マルセイバターサンド',brand:'六花亭',price:1650,unit:'10個',store:'冷藏',emoji:'🧈'},
-  {name:'生チョコレート［オーレ］',brand:"ROYCE'",price:1215,unit:'20粒',store:'冷藏',emoji:'🍫'},
-  {name:'じゃがポックル',brand:'Calbee',price:1080,unit:'10袋',store:'常溫',emoji:'🥔'},
-  {name:'ドゥーブルフロマージュ',brand:'LeTAO',price:2160,unit:'1個',store:'冷凍',emoji:'🧀'},
-  {name:'ポテトチップチョコレート',brand:"ROYCE'",price:1188,unit:'1盒',store:'常溫',emoji:'🍫'},
-  {name:'北海道開拓おかき',brand:'北菓楼',price:490,unit:'170g',store:'常溫',emoji:'🍘'},
-  {name:'札幌農学校ミルククッキー',brand:'きのとや',price:729,unit:'12枚',store:'常溫',emoji:'🍪'},
+  // === 定番 8 款 ===
+  {name:'白い恋人',brand:'石屋製菓',price:1036,unit:'12枚',store:'常溫',emoji:'🍪',
+    shops:[{area:'札幌',label:'白い恋人パーク ほか',query:'白い恋人 札幌'},{area:'空港',label:'新千歳空港店',query:'石屋製菓 新千歳空港'}]},
+  {name:'マルセイバターサンド',brand:'六花亭',price:1650,unit:'10個',store:'冷藏',emoji:'🧈',
+    shops:[{area:'札幌',label:'六花亭 札幌本店 ほか',query:'六花亭 札幌'},{area:'空港',label:'新千歳空港店',query:'六花亭 新千歳空港'}]},
+  {name:'生チョコレート［オーレ］',brand:"ROYCE'",price:1215,unit:'20粒',store:'冷藏',emoji:'🍫',
+    shops:[{area:'札幌',label:'ROYCE 札幌各店',query:"ROYCE' 札幌"},{area:'空港',label:'新千歳空港店',query:"ROYCE' 新千歳空港"}]},
+  {name:'じゃがポックル',brand:'Calbee',price:1080,unit:'10袋',store:'常溫',emoji:'🥔',
+    shops:[{area:'札幌',label:'お土産店各店',query:'じゃがポックル 札幌'},{area:'空港',label:'新千歳空港',query:'じゃがポックル 新千歳空港'}]},
+  {name:'ドゥーブルフロマージュ',brand:'LeTAO',price:2160,unit:'1個',store:'冷凍',emoji:'🧀',
+    shops:[{area:'札幌',label:'LeTAO 大丸札幌店',query:'LeTAO 札幌'},{area:'空港',label:'新千歳空港店',query:'LeTAO 新千歳空港'}]},
+  {name:'ポテトチップチョコレート',brand:"ROYCE'",price:1188,unit:'1盒',store:'常溫',emoji:'🍫',
+    shops:[{area:'札幌',label:'ROYCE 札幌各店',query:"ROYCE' 札幌"},{area:'空港',label:'新千歳空港店',query:"ROYCE' 新千歳空港"}]},
+  {name:'北海道開拓おかき',brand:'北菓楼',price:490,unit:'170g',store:'常溫',emoji:'🍘',
+    shops:[{area:'札幌',label:'北菓楼 札幌本館',query:'北菓楼 札幌'},{area:'空港',label:'新千歳空港店',query:'北菓楼 新千歳空港'}]},
+  {name:'札幌農学校ミルククッキー',brand:'きのとや',price:729,unit:'12枚',store:'常溫',emoji:'🍪',
+    shops:[{area:'札幌',label:'きのとや 札幌各店',query:'きのとや 札幌'},{area:'空港',label:'新千歳空港店',query:'きのとや 新千歳空港'}]},
+  // === 在地推薦 10 款 ===
+  {name:'[SNOW] CHEESE スノーチーズ',brand:'Woodstock',price:1296,unit:'8入',store:'常溫',emoji:'🧀',
+    shops:[{area:'札幌',label:'大丸札幌店（限購3袋）',query:'SNOW CHEESE 大丸 札幌'},{area:'空港',label:'新千歳空港',query:'SNOW CHEESE 新千歳空港'}]},
+  {name:'生ノースマン',brand:'千秋庵製菓',price:1100,unit:'4入',store:'冷藏',emoji:'🥧',
+    shops:[{area:'札幌',label:'千秋庵 大丸札幌店 ほか',query:'千秋庵 札幌'},{area:'空港',label:'新千歳空港店',query:'千秋庵 新千歳空港'}]},
+  {name:'ハスカップジュエリー',brand:'もりもと',price:1920,unit:'6入',store:'冷藏',emoji:'💎',
+    shops:[{area:'札幌',label:'もりもと 札幌各店',query:'もりもと 札幌'},{area:'空港',label:'新千歳空港店',query:'もりもと 新千歳空港'}]},
+  {name:'チェルシー キャラメルサンド',brand:'道南食品',price:1382,unit:'6入',store:'常溫',emoji:'🍬',
+    shops:[{area:'札幌',label:'東急百貨 さっぽろ店',query:'東急百貨店 さっぽろ'},{area:'空港',label:'新千歳空港店',query:'チェルシー 新千歳空港'}]},
+  {name:'ストロベリーチョコ ホワイト',brand:'六花亭',price:780,unit:'130g',store:'常溫',emoji:'🍓',
+    shops:[{area:'札幌',label:'六花亭 札幌各店',query:'六花亭 札幌'},{area:'空港',label:'新千歳空港店',query:'六花亭 新千歳空港'}]},
+  {name:'三方六',brand:'柳月',price:730,unit:'1本',store:'常溫',emoji:'🪵',
+    shops:[{area:'札幌',label:'大丸札幌店 ほか',query:'柳月 札幌'},{area:'空港',label:'新千歳空港店',query:'柳月 新千歳空港'}]},
+  {name:'赤いサイロ',brand:'清月',price:1050,unit:'5入',store:'冷藏',emoji:'🧱',
+    shops:[{area:'札幌',label:'どさんこプラザ JR札幌駅',query:'どさんこプラザ 札幌駅'},{area:'空港',label:'新千歳空港（常完售）',query:'赤いサイロ 新千歳空港'}]},
+  {name:'鮭ルイベ漬',brand:'佐藤水産',price:1290,unit:'110g',store:'冷凍',emoji:'🐟',
+    shops:[{area:'札幌',label:'佐藤水産 本店',query:'佐藤水産 札幌'},{area:'空港',label:'新千歳空港店',query:'佐藤水産 新千歳空港'}]},
+  {name:'チーズオムレット',brand:'スナッフルス',price:1944,unit:'8入',store:'冷藏',emoji:'🧁',
+    shops:[{area:'空港',label:'新千歳空港店',query:'スナッフルス 新千歳空港'}]},
+  {name:'PRESS BUTTER SAND 北海道れん乳とうきび',brand:'PRESS BUTTER SAND',price:1296,unit:'5入',store:'常溫',emoji:'🌽',
+    shops:[{area:'空港',label:'新千歳空港店（全道唯一）',query:'PRESS BUTTER SAND 新千歳空港'}]},
 ];
 
 const DAYS = [
@@ -831,8 +870,14 @@ function calcFromTwd(){
 
 // Souvenir state helpers
 function loadSouvState(){
-  try{return JSON.parse(localStorage.getItem('souvenir-state'))||SOUVENIRS.map(()=>({checked:false,qty:0}));}
-  catch(e){return SOUVENIRS.map(()=>({checked:false,qty:0}));}
+  const blank=()=>SOUVENIRS.map(()=>({checked:false,qty:0}));
+  try{
+    const saved=JSON.parse(localStorage.getItem('souvenir-state'));
+    if(!saved)return blank();
+    // Migrate: extend if fewer items saved than current SOUVENIRS length
+    while(saved.length<SOUVENIRS.length)saved.push({checked:false,qty:0});
+    return saved;
+  }catch(e){return blank();}
 }
 function saveSouvState(state){localStorage.setItem('souvenir-state',JSON.stringify(state));}
 
@@ -846,7 +891,17 @@ function renderSouvenir(){
     h+=`<label class="souv-check"><input type="checkbox"${st.checked?' checked':''}><span class="souv-tick">✓</span></label>`;
     h+=`<span class="souv-emoji">${s.emoji}</span>`;
     h+=`<div class="souv-row1"><span class="souv-name">${s.name}</span><div class="souv-qty"><button class="qty-btn qty-minus">−</button><span class="qty-val${st.qty>0?' has-qty':''}">${st.qty}</span><button class="qty-btn qty-plus">＋</button></div></div>`;
-    h+=`<div class="souv-row2"><span class="souv-brand">${s.brand}・${s.unit}</span><span class="store-pill store-${storeMap[s.store]||'normal'}">${s.store}</span><span class="souv-price">¥${s.price.toLocaleString()}</span></div>`;
+    h+=`<div class="souv-row2"><span class="souv-brand">${s.brand}・${s.unit}</span><span class="store-pill store-${storeMap[s.store]||'normal'}">${s.store}</span><span class="souv-price">¥${s.price.toLocaleString()}</span><span class="souv-pin">📍▾</span></div>`;
+    // Shop expand area
+    if(s.shops&&s.shops.length){
+      h+=`<div class="souv-shops"><hr class="souv-shop-divider">`;
+      const areas={'札幌':'🏙','空港':'✈'};
+      s.shops.forEach(sh=>{
+        h+=`<div class="souv-shop-area">${areas[sh.area]||'📍'} ${sh.area==='空港'?'新千歳空港':sh.area==='札幌'?'札幌市区':sh.area}</div>`;
+        h+=`<a class="souv-shop-link" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sh.query)}" target="_blank" rel="noopener">${'📍 '+sh.label}</a>`;
+      });
+      h+=`</div>`;
+    }
     h+=`</div>`;
   });
   h+='</div>';
@@ -881,6 +936,11 @@ function bindSouvenirEvents(){
     const idx=+item.dataset.idx;
     const state=loadSouvState();
     const st=state[idx];
+
+    // Shop link — let it navigate
+    if(e.target.closest('.souv-shop-link'))return;
+    // Pin toggle — expand/collapse shops
+    if(e.target.closest('.souv-pin')){item.classList.toggle('shop-open');return;}
 
     if(e.target.closest('.qty-plus')){
       st.qty++;
