@@ -199,6 +199,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Ro
 .rate-dot.online{background:#34c759}
 .rate-dot.cached{background:#ff9500}
 .rate-dot.fallback{background:#d1d1d6}
+/* Souvenir list */
+.souv-list{background:var(--card-bg);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+.souv-item{display:grid;grid-template-columns:22px 24px 1fr auto;grid-template-rows:auto auto;gap:2px 8px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--border)}
+.souv-item:last-child{border-bottom:none}
+.souv-item.checked{background:rgba(0,113,227,.03)}
+.souv-check{position:relative;width:22px;height:22px;grid-row:1/3;align-self:center}
+.souv-check input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;width:100%;height:100%}
+.souv-tick{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;border:2px solid var(--border);font-size:13px;color:transparent;transition:all .15s;pointer-events:none}
+.souv-check input:checked+.souv-tick{background:var(--accent);border-color:var(--accent);color:#fff}
+.souv-emoji{font-size:20px;width:24px;text-align:center;grid-row:1/3;align-self:center}
+.souv-row1{display:flex;align-items:center;gap:6px;min-width:0}
+.souv-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.souv-qty{display:flex;align-items:center;gap:0;flex-shrink:0}
+.qty-btn{width:26px;height:26px;border:1.5px solid var(--border);background:#fff;border-radius:50%;font-size:15px;font-weight:600;color:var(--text-light);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;padding:0;line-height:1}
+.qty-btn:active{background:var(--bg)}
+.qty-val{width:24px;text-align:center;font-size:14px;font-weight:700;font-family:'SF Mono',Menlo,'Courier New',monospace;color:var(--text-light)}
+.qty-val.has-qty{color:var(--accent)}
+.souv-row2{display:flex;align-items:center;gap:6px;grid-column:3/5}
+.souv-brand{font-size:11px;color:var(--text-light);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.store-pill{font-size:9px;font-weight:700;padding:2px 6px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+.store-normal{background:rgba(52,199,89,.15);color:#1b7a34}
+.store-cold{background:rgba(90,200,250,.15);color:#0077b6}
+.store-frozen{background:rgba(175,82,222,.15);color:#7b2d8e}
+.souv-price{font-size:12px;font-weight:600;color:var(--text);font-family:'SF Mono',Menlo,'Courier New',monospace;white-space:nowrap;flex-shrink:0}
+.souv-total{background:var(--card-bg);border-radius:16px;padding:12px 16px;margin-top:8px;box-shadow:var(--shadow);font-size:13px;color:var(--text);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600}
+.souv-total .mono{font-family:'SF Mono',Menlo,'Courier New',monospace}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:var(--text-light)}
 </style>
@@ -222,6 +248,17 @@ const GLOBAL_WARNS = [
   "HIS 遊覧船折扣須列印紙本（截圖無效）"
 ];
 const FALLBACK_RATE = 0.218;
+
+const SOUVENIRS=[
+  {name:'白い恋人',brand:'石屋製菓',price:1036,unit:'12枚',store:'常溫',emoji:'🍪'},
+  {name:'マルセイバターサンド',brand:'六花亭',price:1650,unit:'10個',store:'冷藏',emoji:'🧈'},
+  {name:'生チョコレート［オーレ］',brand:"ROYCE'",price:1215,unit:'20粒',store:'冷藏',emoji:'🍫'},
+  {name:'じゃがポックル',brand:'Calbee',price:1080,unit:'10袋',store:'常溫',emoji:'🥔'},
+  {name:'ドゥーブルフロマージュ',brand:'LeTAO',price:2160,unit:'1個',store:'冷凍',emoji:'🧀'},
+  {name:'ポテトチップチョコレート',brand:"ROYCE'",price:1188,unit:'1盒',store:'常溫',emoji:'🍫'},
+  {name:'北海道開拓おかき',brand:'北菓楼',price:490,unit:'170g',store:'常溫',emoji:'🍘'},
+  {name:'札幌農学校ミルククッキー',brand:'きのとや',price:729,unit:'12枚',store:'常溫',emoji:'🍪'},
+];
 
 const DAYS = [
   {
@@ -684,11 +721,13 @@ function render(){
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.day===n));
     document.querySelectorAll('.day-view').forEach(v=>v.classList.toggle('active',v.id===`day${n}`));
     if(n===0)renderDashboard();
-    // Reset sub-tabs to itinerary view
+    // Reset sub-tabs to first tab
     const dv=document.getElementById(`day${n}`);
     if(dv){
+      const firstSub=dv.querySelector('.day-subtab');
+      const firstSec=firstSub?firstSub.dataset.subtab:null;
       dv.querySelectorAll('.day-subtab').forEach((t,i)=>t.classList.toggle('active',i===0));
-      dv.querySelectorAll('.tab-section').forEach(s=>s.classList.toggle('active',s.dataset.section==='itinerary'));
+      if(firstSec)dv.querySelectorAll('.tab-section').forEach(s=>s.classList.toggle('active',s.dataset.section===firstSec));
     }
     const at=document.querySelector('.tab.active');
     if(at)at.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
@@ -790,46 +829,145 @@ function calcFromTwd(){
   document.getElementById('calc-jpy').value=v?Math.round(v/currentRate):'';
 }
 
+// Souvenir state helpers
+function loadSouvState(){
+  try{return JSON.parse(localStorage.getItem('souvenir-state'))||SOUVENIRS.map(()=>({checked:false,qty:0}));}
+  catch(e){return SOUVENIRS.map(()=>({checked:false,qty:0}));}
+}
+function saveSouvState(state){localStorage.setItem('souvenir-state',JSON.stringify(state));}
+
+function renderSouvenir(){
+  const state=loadSouvState();
+  const storeMap={'常溫':'normal','冷藏':'cold','冷凍':'frozen'};
+  let h='<div class="souv-list">';
+  SOUVENIRS.forEach((s,i)=>{
+    const st=state[i];
+    h+=`<div class="souv-item${st.checked?' checked':''}" data-idx="${i}">`;
+    h+=`<label class="souv-check"><input type="checkbox"${st.checked?' checked':''}><span class="souv-tick">✓</span></label>`;
+    h+=`<span class="souv-emoji">${s.emoji}</span>`;
+    h+=`<div class="souv-row1"><span class="souv-name">${s.name}</span><div class="souv-qty"><button class="qty-btn qty-minus">−</button><span class="qty-val${st.qty>0?' has-qty':''}">${st.qty}</span><button class="qty-btn qty-plus">＋</button></div></div>`;
+    h+=`<div class="souv-row2"><span class="souv-brand">${s.brand}・${s.unit}</span><span class="store-pill store-${storeMap[s.store]||'normal'}">${s.store}</span><span class="souv-price">¥${s.price.toLocaleString()}</span></div>`;
+    h+=`</div>`;
+  });
+  h+='</div>';
+  // Total
+  let cnt=0,total=0;
+  state.forEach((st,i)=>{if(st.checked&&st.qty>0){cnt++;total+=SOUVENIRS[i].price*st.qty;}});
+  const twdTotal=Math.round(total*currentRate);
+  h+=`<div class="souv-total" id="souv-total">`;
+  if(cnt>0) h+=`↑ ${cnt} 品項　<span class="mono">¥${total.toLocaleString()}</span>　≈ <span class="mono">NT$${twdTotal.toLocaleString()}</span>`;
+  else h+=`尚未選擇伴手禮`;
+  h+=`</div>`;
+  return h;
+}
+
+function updateSouvTotal(){
+  const state=loadSouvState();
+  const el=document.getElementById('souv-total');
+  if(!el)return;
+  let cnt=0,total=0;
+  state.forEach((st,i)=>{if(st.checked&&st.qty>0){cnt++;total+=SOUVENIRS[i].price*st.qty;}});
+  const twdTotal=Math.round(total*currentRate);
+  if(cnt>0) el.innerHTML=`↑ ${cnt} 品項　<span class="mono">¥${total.toLocaleString()}</span>　≈ <span class="mono">NT$${twdTotal.toLocaleString()}</span>`;
+  else el.innerHTML=`尚未選擇伴手禮`;
+}
+
+function bindSouvenirEvents(){
+  const container=document.querySelector('[data-section="souvenir"]');
+  if(!container)return;
+  container.addEventListener('click',e=>{
+    const item=e.target.closest('.souv-item');
+    if(!item)return;
+    const idx=+item.dataset.idx;
+    const state=loadSouvState();
+    const st=state[idx];
+
+    if(e.target.closest('.qty-plus')){
+      st.qty++;
+      if(!st.checked)st.checked=true;
+    }else if(e.target.closest('.qty-minus')){
+      if(st.qty>0)st.qty--;
+      if(st.qty===0)st.checked=false;
+    }else if(e.target.closest('.souv-check')){
+      // Let checkbox toggle naturally
+      const cb=item.querySelector('input[type="checkbox"]');
+      st.checked=cb.checked;
+      if(st.checked&&st.qty===0)st.qty=1;
+      if(!st.checked)st.qty=0;
+    }else return;
+
+    saveSouvState(state);
+    // Update UI inline
+    const cb=item.querySelector('input[type="checkbox"]');
+    cb.checked=st.checked;
+    item.classList.toggle('checked',st.checked);
+    const qv=item.querySelector('.qty-val');
+    qv.textContent=st.qty;
+    qv.classList.toggle('has-qty',st.qty>0);
+    updateSouvTotal();
+  });
+  // Prevent checkbox default to let our handler manage state
+  container.querySelectorAll('.souv-check input').forEach(cb=>{
+    cb.addEventListener('click',e=>e.stopPropagation());
+    cb.addEventListener('change',e=>{
+      const item=e.target.closest('.souv-item');
+      const idx=+item.dataset.idx;
+      const state=loadSouvState();
+      const st=state[idx];
+      st.checked=e.target.checked;
+      if(st.checked&&st.qty===0)st.qty=1;
+      if(!st.checked)st.qty=0;
+      saveSouvState(state);
+      item.classList.toggle('checked',st.checked);
+      const qv=item.querySelector('.qty-val');
+      qv.textContent=st.qty;
+      qv.classList.toggle('has-qty',st.qty>0);
+      updateSouvTotal();
+    });
+  });
+}
+
 function renderDashboard(){
   const el=document.getElementById('day0');
-  // Warns
+  // Sub-tabs
+  let html='<div class="day-subtabs">';
+  html+='<div class="day-subtab active" data-subtab="warns">⚠️ 注意</div>';
+  html+='<div class="day-subtab" data-subtab="budget">💰 預算</div>';
+  html+='<div class="day-subtab" data-subtab="calc">💱 匯率</div>';
+  html+='<div class="day-subtab" data-subtab="souvenir">🎁 伴手禮</div>';
+  html+='</div>';
+
+  // === Warns section ===
   let warns='<div class="dash-section"><h3>⚠️ 注意事項</h3>';
   GLOBAL_WARNS.forEach(w=>warns+=`<div class="dash-warn">${w}</div>`);
   DAYS.forEach(d=>d.warns.forEach(w=>warns+=`<div class="dash-warn">Day ${d.day}：${w}</div>`));
   warns+='</div>';
+  html+=`<div class="tab-section active" data-section="warns">${warns}</div>`;
 
-  // Budget summary
+  // === Budget section ===
   const jpyAmounts=[];
   let twdTotal=0;
   DAYS.forEach(d=>{
     if(!d.budget)return;
     const totalRow=d.budget[d.budget.length-1];
     const totalStr=totalRow[1];
-    // Extract JPY amount
     const jpyMatch=totalStr.match(/[~]?[¥￥]([0-9,]+)/);
     if(jpyMatch)jpyAmounts.push({day:d.day,title:d.title,jpy:parseInt(jpyMatch[1].replace(/,/g,''))});
-    // Extract NT$ amount
     const ntMatch=totalStr.match(/NT\$([0-9,]+)/);
     if(ntMatch)twdTotal+=parseInt(ntMatch[1].replace(/,/g,''));
   });
   const jpyTotal=jpyAmounts.reduce((s,x)=>s+x.jpy,0);
-
   let budget='<div class="dash-section"><h3>💰 預估總花費（4人）</h3><table class="dash-table">';
-  jpyAmounts.forEach(x=>{
-    budget+=`<tr><td>Day ${x.day} ${x.title}</td><td>~¥${x.jpy.toLocaleString()}</td></tr>`;
-  });
-  if(twdTotal>0){
-    budget+=`<tr><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
-  }
+  jpyAmounts.forEach(x=>{budget+=`<tr><td>Day ${x.day} ${x.title}</td><td>~¥${x.jpy.toLocaleString()}</td></tr>`;});
+  if(twdTotal>0)budget+=`<tr><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
   budget+=`<tr class="total"><td>日幣小計</td><td>~¥${jpyTotal.toLocaleString()}</td></tr>`;
-  if(twdTotal>0){
-    budget+=`<tr class="total"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
-  }
+  if(twdTotal>0)budget+=`<tr class="total"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
   const grandTotal=Math.round(jpyTotal*currentRate)+twdTotal;
   budget+=`<tr class="total"><td>換算總計</td><td>≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
   budget+='</table></div>';
+  html+=`<div class="tab-section" data-section="budget">${budget}</div>`;
 
-  // Calculator
+  // === Calculator section ===
   const dotCls=rateSource==='online'?'online':rateSource==='cached'?'cached':'fallback';
   const rateLabel=rateSource==='online'?`線上即時 · ${rateTime}`:rateSource==='cached'?`離線快取 · ${rateTime}`:'預設匯率（無快取）';
   let calc='<div class="dash-section"><h3>💱 日幣計算機</h3>';
@@ -839,12 +977,18 @@ function renderDashboard(){
   calc+=`<div class="rate-status" id="rate-status"><span class="rate-dot ${dotCls}"></span>${rateLabel}</div>`;
   calc+=`<div style="font-size:11px;color:var(--text-light);margin-top:2px">匯率 <span id="rate-value">${currentRate.toFixed(4)}</span></div>`;
   calc+='</div>';
+  html+=`<div class="tab-section" data-section="calc">${calc}</div>`;
 
-  el.innerHTML=warns+budget+calc;
+  // === Souvenir section ===
+  html+=`<div class="tab-section" data-section="souvenir">${renderSouvenir()}</div>`;
+
+  el.innerHTML=html;
 
   // Bind calculator events
   document.getElementById('calc-jpy').addEventListener('input',calcFromJpy);
   document.getElementById('calc-twd').addEventListener('input',calcFromTwd);
+  // Bind souvenir events
+  bindSouvenirEvents();
 }
 
 /* Bottom Sheet */
