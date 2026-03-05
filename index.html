@@ -912,6 +912,8 @@ function updateRateUI(){
     const jpy=+el.dataset.convJpy,ntd=+el.dataset.convNtd||0;
     el.textContent=`≈ NT$${(Math.round(jpy*currentRate)+ntd).toLocaleString()}`;
   });
+  // Recalc souvenir total
+  updateSouvTotal();
 }
 
 function calcFromJpy(){
