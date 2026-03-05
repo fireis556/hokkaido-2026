@@ -162,6 +162,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Ro
 .budget td{padding:4px 0}
 .budget td:last-child{text-align:right;font-family:'SF Mono',Menlo,'Courier New',monospace;font-size:11.5px;white-space:nowrap}
 .budget tr.total td{border-top:1.5px dashed var(--border);padding-top:8px;font-weight:700;color:var(--accent)}
+.budget-filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.bfilter{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-light);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.bfilter.active{background:var(--accent);border-color:var(--accent);color:#fff}
 /* Badge */
 .badge{position:absolute;top:6px;right:8px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;cursor:pointer}
 .card.has-alts{cursor:pointer}
@@ -338,12 +341,12 @@ const DAYS = [
       {t:"21:05~",a:"🛁 房間露天風呂・就寢",n:"全室温泉露天風呂付"}
     ],
     budget:[
-      ["JR+uシート 新千歳→新札幌 ×4","¥6,960"],
-      ["地下鉄 新さっぽろ→大通 ×4","¥1,280"],
-      ["コインロッカー ×4","¥2,000"],
-      ["朝食 SIROYA ×4","~¥2,000"],
-      ["大通公園小吃","~¥4,000"],
-      ["夕食","宿泊費込"],
+      ["JR+uシート 新千歳→新札幌 ×4","¥6,960","t"],
+      ["地下鉄 新さっぽろ→大通 ×4","¥1,280","t"],
+      ["コインロッカー ×4","¥2,000","t"],
+      ["朝食 SIROYA ×4","~¥2,000","f"],
+      ["大通公園小吃","~¥4,000","f"],
+      ["夕食","宿泊費込","f"],
       ["合計","~¥16,240"]
     ]
   },
@@ -380,14 +383,14 @@ const DAYS = [
       {t:"21:15",a:"🚶 回飯店",n:"約8~10分"}
     ],
     budget:[
-      ["計程車 旅館→BT","~¥1,500"],
-      ["コインロッカー ×4","~¥2,000"],
-      ["遊覧船 HIS 10%OFF ×4","¥5,760"],
-      ["道南バス 洞爺湖→すすきの ×4","¥14,800"],
-      ["溫泉街零食","~¥2,000"],
-      ["晚餐 SOUL STORE ×4","~¥8,000"],
-      ["和菓子","~¥1,000"],
-      ["シメパフェ INITIAL ×4","~¥12,000"],
+      ["計程車 旅館→BT","~¥1,500","t"],
+      ["コインロッカー ×4","~¥2,000","t"],
+      ["遊覧船 HIS 10%OFF ×4","¥5,760","t"],
+      ["道南バス 洞爺湖→すすきの ×4","¥14,800","t"],
+      ["溫泉街零食","~¥2,000","s"],
+      ["晚餐 SOUL STORE ×4","~¥8,000","f"],
+      ["和菓子","~¥1,000","s"],
+      ["シメパフェ INITIAL ×4","~¥12,000","f"],
       ["合計","~¥47,060"]
     ]
   },
@@ -416,12 +419,12 @@ const DAYS = [
       {t:"19:00",a:"🚶 回飯店",n:"徒歩約13~15分"}
     ],
     budget:[
-      ["地鐵 すすきの→さっぽろ ×4","¥840"],
-      ["JR 札幌⇄小樽 ×4","¥6,400"],
-      ["午餐 ぜん庵 ×4","¥16,720"],
-      ["かま栄＋堺町零食","~¥2,920"],
-      ["ルタオ カフェ ×4","~¥4,000"],
-      ["晚餐 FUJIYAMA ×4","~¥20,000"],
+      ["地鐵 すすきの→さっぽろ ×4","¥840","t"],
+      ["JR 札幌⇄小樽 ×4","¥6,400","t"],
+      ["午餐 ぜん庵 ×4","¥16,720","f"],
+      ["かま栄＋堺町零食","~¥2,920","s"],
+      ["ルタオ カフェ ×4","~¥4,000","f"],
+      ["晚餐 FUJIYAMA ×4","~¥20,000","f"],
       ["合計","~¥50,880"]
     ]
   },
@@ -451,14 +454,14 @@ const DAYS = [
       {t:"21:30",a:"🚶 回 MYSTAYS Aspen",n:"大通→さっぽろ（2分）＋步行5分 ≈ 12~14分"}
     ],
     budget:[
-      ["地鐵（全日 5 段）×4","¥4,200"],
-      ["JR 札幌→桑園 ×4","¥600"],
-      ["市電 往復 ×4","¥1,840"],
-      ["藻岩山 ロープウェイ VELTRA ×4","¥7,560"],
-      ["場外市場 早午餐 ×4","~¥10,000"],
-      ["森彦 珈琲 ×4","~¥3,200"],
-      ["神宮 和菓子","~¥1,600"],
-      ["晚餐 ノースコンチネント ×4","~¥10,000"],
+      ["地鐵（全日 5 段）×4","¥4,200","t"],
+      ["JR 札幌→桑園 ×4","¥600","t"],
+      ["市電 往復 ×4","¥1,840","t"],
+      ["藻岩山 ロープウェイ VELTRA ×4","¥7,560","t"],
+      ["場外市場 早午餐 ×4","~¥10,000","f"],
+      ["森彦 珈琲 ×4","~¥3,200","f"],
+      ["神宮 和菓子","~¥1,600","s"],
+      ["晚餐 ノースコンチネント ×4","~¥10,000","f"],
       ["合計","~¥39,000"]
     ]
   },
@@ -479,10 +482,10 @@ const DAYS = [
       {t:"20:45~21:30",a:"🍽 晚餐（輕食）",meal:"夜",shop:"未定",type:"輕食",station:"札幌",oneliner:"一日巴士行程後的簡單輕食",hours:"",price:"~¥1,000/人",n:"",m:""}
     ],
     budget:[
-      ["Klook 行程 ×4","NT$7,220"],
-      ["地鐵 さっぽろ→大通 ×4","¥840"],
-      ["午餐（自備）","~¥2,000"],
-      ["晚餐（輕食）","~¥4,000"],
+      ["Klook 行程 ×4","NT$7,220","t"],
+      ["地鐵 さっぽろ→大通 ×4","¥840","t"],
+      ["午餐（自備）","~¥2,000","f"],
+      ["晚餐（輕食）","~¥4,000","f"],
       ["合計","¥6,840 + NT$7,220"]
     ]
   },
@@ -502,9 +505,9 @@ const DAYS = [
       {t:"09:00",a:"✈ 航班起飛",n:"VZ571｜CTS 09:00 → TPE 12:25"}
     ],
     budget:[
-      ["JR 快速エアポート ×4","¥4,600"],
-      ["SEICOMART ×4","~¥1,600"],
-      ["ROYAL HOST 早餐 ×4","~¥4,000"],
+      ["JR 快速エアポート ×4","¥4,600","t"],
+      ["SEICOMART ×4","~¥1,600","f"],
+      ["ROYAL HOST 早餐 ×4","~¥4,000","f"],
       ["合計","~¥10,200"]
     ]
   }
@@ -745,11 +748,20 @@ function render(){
     });
     html+=`</div>`;
     if(d.budget){
-      html+=`<div class="budget"><h3>💰 費用概算（4人）</h3><table>`;
+      const bcats=new Set(d.budget.map(b=>b[2]).filter(Boolean));
+      let fh='<div class="budget-filters"><span class="bfilter active" data-bcat="all">全部</span>';
+      if(bcats.has('t'))fh+='<span class="bfilter" data-bcat="t">🚃 交通</span>';
+      if(bcats.has('f'))fh+='<span class="bfilter" data-bcat="f">🍽 三餐</span>';
+      if(bcats.has('s'))fh+='<span class="bfilter" data-bcat="s">🛍 伴手禮</span>';
+      fh+='</div>';
+      html+=`<div class="budget"><h3>💰 費用概算（4人）</h3>${fh}<table>`;
       d.budget.forEach((b,i,a)=>{
-        const cls=i===a.length-1?' class="total"':'';
-        html+=`<tr${cls}><td>${b[0]}</td><td>${b[1]}</td></tr>`;
+        const isTotal=i===a.length-1;
+        const cls=isTotal?' class="total"':'';
+        const bcat=isTotal?'':` data-bcat="${b[2]||''}"`;
+        html+=`<tr${cls}${bcat}><td>${b[0]}</td><td>${b[1]}</td></tr>`;
       });
+      html+=`<tr class="total bfilter-sub" style="display:none"><td>小計</td><td class="bfilter-sub-val"></td></tr>`;
       html+=`</table></div>`;
     }
     html+=`</div>`;
@@ -806,6 +818,38 @@ function render(){
       subtab.classList.add('active');
       const sec=subtab.dataset.subtab;
       dv.querySelectorAll('.tab-section').forEach(s=>s.classList.toggle('active',s.dataset.section===sec));
+      return;
+    }
+    // Budget filter chips
+    const bfilter=e.target.closest('.bfilter');
+    if(bfilter){
+      const dashBudget=bfilter.closest('.dash-budget');
+      const dayBudget=bfilter.closest('.budget');
+      const container=dashBudget||dayBudget;
+      if(!container)return;
+      container.querySelectorAll('.bfilter').forEach(f=>f.classList.toggle('active',f===bfilter));
+      const cat=bfilter.dataset.bcat;
+      if(dashBudget){
+        dashBudget.querySelectorAll('tr[data-dview]').forEach(r=>{r.style.display=r.dataset.dview===cat?'':'none';});
+      } else {
+        const rows=dayBudget.querySelectorAll('tr[data-bcat]');
+        const totalRow=dayBudget.querySelector('tr.total:not(.bfilter-sub)');
+        const subRow=dayBudget.querySelector('.bfilter-sub');
+        if(cat==='all'){
+          rows.forEach(r=>r.style.display='');
+          if(totalRow)totalRow.style.display='';
+          if(subRow)subRow.style.display='none';
+        } else {
+          let sum=0;
+          rows.forEach(r=>{
+            const show=r.dataset.bcat===cat;
+            r.style.display=show?'':'none';
+            if(show){const m=r.cells[1].textContent.match(/[~]?¥([0-9,]+)/);if(m)sum+=parseInt(m[1].replace(/,/g,''));}
+          });
+          if(totalRow)totalRow.style.display='none';
+          if(subRow){subRow.style.display='';subRow.querySelector('.bfilter-sub-val').textContent=sum>0?`~¥${sum.toLocaleString()}`:'—';}
+        }
+      }
       return;
     }
     if(e.target.closest('a'))return;
@@ -1022,6 +1066,7 @@ function renderDashboard(){
   // === Budget section ===
   const jpyAmounts=[];
   let twdTotal=0;
+  const dayCatTotals={};
   DAYS.forEach(d=>{
     if(!d.budget)return;
     const totalRow=d.budget[d.budget.length-1];
@@ -1030,15 +1075,51 @@ function renderDashboard(){
     if(jpyMatch)jpyAmounts.push({day:d.day,title:d.title,jpy:parseInt(jpyMatch[1].replace(/,/g,''))});
     const ntMatch=totalStr.match(/NT\$([0-9,]+)/);
     if(ntMatch)twdTotal+=parseInt(ntMatch[1].replace(/,/g,''));
+    // per-day category sums
+    const ct={t:{j:0,n:0},f:{j:0,n:0},s:{j:0,n:0}};
+    d.budget.slice(0,-1).forEach(b=>{
+      if(!b[2])return;
+      const mj=b[1].match(/[~]?¥([0-9,]+)/);if(mj)ct[b[2]].j+=parseInt(mj[1].replace(/,/g,''));
+      const mn=b[1].match(/NT\$([0-9,]+)/);if(mn)ct[b[2]].n+=parseInt(mn[1].replace(/,/g,''));
+    });
+    dayCatTotals[d.day]=ct;
   });
   const jpyTotal=jpyAmounts.reduce((s,x)=>s+x.jpy,0);
-  let budget='<div class="dash-section"><h3>💰 預估總花費（4人）</h3><table class="dash-table">';
-  jpyAmounts.forEach(x=>{budget+=`<tr><td>Day ${x.day} ${x.title}</td><td>~¥${x.jpy.toLocaleString()}</td></tr>`;});
-  if(twdTotal>0)budget+=`<tr><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
-  budget+=`<tr class="total"><td>日幣小計</td><td>~¥${jpyTotal.toLocaleString()}</td></tr>`;
-  if(twdTotal>0)budget+=`<tr class="total"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
   const grandTotal=Math.round(jpyTotal*currentRate)+twdTotal;
-  budget+=`<tr class="total"><td>換算總計</td><td>≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
+  // category grand totals
+  const catGrand={t:{j:0,n:0},f:{j:0,n:0},s:{j:0,n:0}};
+  Object.values(dayCatTotals).forEach(ct=>['t','f','s'].forEach(k=>{catGrand[k].j+=ct[k].j;catGrand[k].n+=ct[k].n;}));
+
+  let budget='<div class="dash-section dash-budget"><h3>💰 預估總花費（4人）</h3>';
+  budget+='<div class="budget-filters"><span class="bfilter active" data-bcat="all">全部</span>';
+  budget+='<span class="bfilter" data-bcat="t">🚃 交通</span>';
+  budget+='<span class="bfilter" data-bcat="f">🍽 三餐</span>';
+  budget+='<span class="bfilter" data-bcat="s">🛍 伴手禮</span>';
+  budget+='</div>';
+  budget+='<table class="dash-table">';
+  // all view
+  jpyAmounts.forEach(x=>{budget+=`<tr data-dview="all"><td>Day ${x.day} ${x.title}</td><td>~¥${x.jpy.toLocaleString()}</td></tr>`;});
+  if(twdTotal>0)budget+=`<tr data-dview="all"><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
+  budget+=`<tr class="total" data-dview="all"><td>日幣小計</td><td>~¥${jpyTotal.toLocaleString()}</td></tr>`;
+  if(twdTotal>0)budget+=`<tr class="total" data-dview="all"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
+  budget+=`<tr class="total" data-dview="all"><td>換算總計</td><td>≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
+  // category views
+  ['t','f','s'].forEach(cat=>{
+    const catName={t:'交通',f:'三餐',s:'伴手禮'}[cat];
+    jpyAmounts.forEach(x=>{
+      const ct=dayCatTotals[x.day][cat];
+      if(!ct.j&&!ct.n)return;
+      let amt=ct.j?`~¥${ct.j.toLocaleString()}`:'';
+      if(ct.n)amt+=(amt?' + ':'')+`NT$${ct.n.toLocaleString()}`;
+      budget+=`<tr data-dview="${cat}" style="display:none"><td>Day ${x.day} ${catName}</td><td>${amt}</td></tr>`;
+    });
+    const cg=catGrand[cat];
+    let cgAmt=cg.j?`~¥${cg.j.toLocaleString()}`:'';
+    if(cg.n)cgAmt+=(cgAmt?' + ':'')+`NT$${cg.n.toLocaleString()}`;
+    budget+=`<tr class="total" data-dview="${cat}" style="display:none"><td>${catName}小計</td><td>${cgAmt}</td></tr>`;
+    const conv=Math.round(cg.j*currentRate)+cg.n;
+    budget+=`<tr class="total" data-dview="${cat}" style="display:none"><td>換算</td><td>≈ NT$${conv.toLocaleString()}</td></tr>`;
+  });
   budget+='</table></div>';
   html+=`<div class="tab-section" data-section="budget">${budget}</div>`;
 
