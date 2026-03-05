@@ -904,9 +904,14 @@ function updateRateUI(){
   el.innerHTML=`<span class="rate-dot ${dotCls}"></span>${label}`;
   const rateVal=document.getElementById('rate-value');
   if(rateVal)rateVal.textContent=currentRate.toFixed(4);
-  // Recalc
+  // Recalc calculator
   const jpyInput=document.getElementById('calc-jpy');
   if(jpyInput&&jpyInput.value)calcFromJpy();
+  // Recalc budget conversion cells
+  document.querySelectorAll('[data-conv-jpy]').forEach(el=>{
+    const jpy=+el.dataset.convJpy,ntd=+el.dataset.convNtd||0;
+    el.textContent=`≈ NT$${(Math.round(jpy*currentRate)+ntd).toLocaleString()}`;
+  });
 }
 
 function calcFromJpy(){
@@ -1102,7 +1107,7 @@ function renderDashboard(){
   if(twdTotal>0)budget+=`<tr data-dview="all"><td>Day 5 Klook</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
   budget+=`<tr class="total" data-dview="all"><td>日幣小計</td><td>~¥${jpyTotal.toLocaleString()}</td></tr>`;
   if(twdTotal>0)budget+=`<tr class="total" data-dview="all"><td>台幣小計</td><td>NT$${twdTotal.toLocaleString()}</td></tr>`;
-  budget+=`<tr class="total" data-dview="all"><td>換算總計</td><td>≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
+  budget+=`<tr class="total" data-dview="all"><td>換算總計</td><td data-conv-jpy="${jpyTotal}" data-conv-ntd="${twdTotal}">≈ NT$${grandTotal.toLocaleString()}</td></tr>`;
   // category views
   ['t','f','s'].forEach(cat=>{
     const catName={t:'交通',f:'三餐',s:'伴手禮'}[cat];
@@ -1118,7 +1123,7 @@ function renderDashboard(){
     if(cg.n)cgAmt+=(cgAmt?' + ':'')+`NT$${cg.n.toLocaleString()}`;
     budget+=`<tr class="total" data-dview="${cat}" style="display:none"><td>${catName}小計</td><td>${cgAmt}</td></tr>`;
     const conv=Math.round(cg.j*currentRate)+cg.n;
-    budget+=`<tr class="total" data-dview="${cat}" style="display:none"><td>換算</td><td>≈ NT$${conv.toLocaleString()}</td></tr>`;
+    budget+=`<tr class="total" data-dview="${cat}" style="display:none"><td>換算</td><td data-conv-jpy="${cg.j}" data-conv-ntd="${cg.n}">≈ NT$${conv.toLocaleString()}</td></tr>`;
   });
   budget+='</table></div>';
   html+=`<div class="tab-section" data-section="budget">${budget}</div>`;
