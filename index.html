@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <title>🗾 2026 北海道自由行</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -245,6 +247,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Ro
 .souv-shop-link:active{background:rgba(0,113,227,.12)}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:var(--text-light)}
+/* Day map */
+.map-wrap{border-radius:14px;overflow:hidden;border:1.5px solid rgba(0,113,227,.15);box-shadow:var(--shadow);margin-bottom:12px}
+.map-sm{height:180px;width:100%}
+.leaflet-popup-content{font-family:inherit;font-size:13px;line-height:1.5;min-width:140px}
+.leaflet-popup-content b{font-size:14px}
+.map-nav-btn{display:inline-block;margin-top:6px;padding:4px 12px;background:var(--accent);color:#fff;border-radius:8px;text-decoration:none;font-size:12px;font-weight:600}
+.map-nav-btn:active{opacity:.7}
+.map-legend{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;font-size:11px;color:var(--text-light);margin-top:8px}
+.map-legend-item{display:flex;align-items:center;gap:3px}
+.map-legend-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.map-locate-btn{position:absolute;bottom:10px;right:10px;z-index:1000;width:36px;height:36px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,.15);box-shadow:0 2px 6px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background .2s}
+.map-locate-btn:active{background:#e8e8e8}
+.map-locate-btn.locating{animation:pulse-locate 1s ease infinite}
+@keyframes pulse-locate{0%,100%{box-shadow:0 2px 6px rgba(0,0,0,.2)}50%{box-shadow:0 2px 12px rgba(0,122,255,.5)}}
+.leaflet-loc-dot{width:14px;height:14px;border-radius:50%;background:#007aff;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 </style>
 </head>
 <body>
@@ -513,6 +530,51 @@ const DAYS = [
   }
 ];
 
+const PLACES = [
+  // Day 1 — 新千歳 → 大通 → 洞爺湖
+  {day:1,name:"新千歳空港",cat:"transport",lat:42.7750,lng:141.6923,info:"入境｜07:35到達",mq:"新千歳空港"},
+  {day:1,name:"SIROYA 大通",cat:"food",lat:43.0584,lng:141.3511,info:"晨間套餐無限續杯｜09:00-19:00",mq:"シロヤ SIROYA 札幌大通"},
+  {day:1,name:"とうきびワゴン 大通公園",cat:"food",lat:43.0582,lng:141.3498,info:"季節限定烤玉米｜09:30-17:00",mq:"大通公園 とうきびワゴン 札幌"},
+  {day:1,name:"さっぽろテレビ塔",cat:"spot",lat:43.0580,lng:141.3533,info:"外觀拍照",mq:"さっぽろテレビ塔"},
+  {day:1,name:"大通ビッセ BISSE SWEETS",cat:"food",lat:43.0587,lng:141.3526,info:"きのとや甜點・必吃蛋包聖代｜10:00-20:00",mq:"大通ビッセ 札幌"},
+  {day:1,name:"The Lake Suite 湖の栖",cat:"hotel",lat:42.5576,lng:140.8073,info:"Check-in 15:00｜全室露天風呂付",mq:"ザレイクスイート湖の栖 洞爺湖"},
+  {day:1,name:"洞爺湖 彫刻公園",cat:"spot",lat:42.5620,lng:140.8098,info:"湖畔散策｜新綠+中島+羊蹄山",mq:"洞爺湖 彫刻公園"},
+  // Day 2 — 洞爺湖 → 札幌すすきの
+  {day:2,name:"洞爺湖汽船 桟橋",cat:"transport",lat:42.5592,lng:140.7985,info:"遊覧船 10:30 出航｜¥1,440/人",mq:"洞爺湖汽船 駅前桟橋"},
+  {day:2,name:"洞爺湖温泉街",cat:"spot",lat:42.5607,lng:140.7948,info:"溫泉街散策 80分｜足湯・白いおしるこ",mq:"洞爺湖温泉街"},
+  {day:2,name:"Comfort Hotel すすきの",cat:"hotel",lat:43.0543,lng:141.3596,info:"Check-in｜南5西1｜無料朝食付",mq:"コンフォートホテル札幌すすきの"},
+  {day:2,name:"狸小路商店街",cat:"spot",lat:43.0561,lng:141.3565,info:"1→7丁目散策｜藥妝比價",mq:"狸小路商店街 札幌"},
+  {day:2,name:"SOUL STORE 湯咖哩",cat:"food",lat:43.0553,lng:141.3580,info:"雞腿野菜湯咖哩｜¥1,300~2,000/人",mq:"SOUL STORE スープカレー 札幌"},
+  {day:2,name:"INITIAL SAPPORO",cat:"food",lat:43.0548,lng:141.3570,info:"深夜聖代｜¥2,000~3,000/人",mq:"INITIAL SAPPORO 札幌"},
+  // Day 3 — 小樽
+  {day:3,name:"小樽運河",cat:"spot",lat:43.1940,lng:140.9948,info:"石造倉庫群・經典拍照點",mq:"小樽運河"},
+  {day:3,name:"ぜん庵 政寿司",cat:"food",lat:43.1904,lng:141.0001,info:"職人握壽司｜¥4,180~6,600/人｜11:00開店前記名",mq:"おたる政寿司 ぜん庵"},
+  {day:3,name:"かま栄 工場直売店",cat:"food",lat:43.1882,lng:141.0007,info:"百年魚板・炸麵包卷｜~¥230",mq:"かま栄 工場直売店 小樽"},
+  {day:3,name:"北一硝子 三号館",cat:"spot",lat:43.1863,lng:141.0019,info:"167盞石油ランプ｜08:45-18:00",mq:"北一硝子 三号館 小樽"},
+  {day:3,name:"六花亭 小樽運河店",cat:"spot",lat:43.1933,lng:140.9938,info:"マルセイバターサンド｜09:00-18:00",mq:"六花亭 小樽運河店"},
+  {day:3,name:"ルタオ本店",cat:"food",lat:43.1859,lng:141.0038,info:"本店限定生雙層起司蛋糕｜~¥900",mq:"ルタオ本店 小樽"},
+  {day:3,name:"小樽オルゴール堂",cat:"spot",lat:43.1872,lng:141.0014,info:"3,200種音樂盒｜09:00-18:00",mq:"小樽オルゴール堂 本館"},
+  {day:3,name:"FUJIYAMAジンギスカン",cat:"food",lat:43.0574,lng:141.3590,info:"無煙烤爐成吉思汗｜¥4,500~5,000/人",mq:"FUJIYAMA ジンギスカン 札幌"},
+  // Day 4 — 札幌深度
+  {day:4,name:"MYSTAYS Sapporo Aspen",cat:"hotel",lat:43.0685,lng:141.3508,info:"新飯店 Check-in 15:00",mq:"ホテルマイステイズ札幌アスペン"},
+  {day:4,name:"札幌場外市場",cat:"food",lat:43.0665,lng:141.3301,info:"清晨漁港食堂・海鮮丼｜¥2,500~3,500/人",mq:"札幌場外市場"},
+  {day:4,name:"森彦 MORIHICO. 本店",cat:"food",lat:43.0598,lng:141.3230,info:"百年古民家僅6桌・自家焙煎｜¥600~1,200/人",mq:"森彦 本店 札幌"},
+  {day:4,name:"北海道神宮",cat:"spot",lat:43.0562,lng:141.3125,info:"參拜｜判官餅 ¥140・福レ餅 ¥250",mq:"北海道神宮"},
+  {day:4,name:"大丸札幌",cat:"spot",lat:43.0687,lng:141.3510,info:"STELLAR PLACE 購物｜10:00-20:00",mq:"大丸札幌店"},
+  {day:4,name:"藻岩山ロープウェイ 山麓駅",cat:"spot",lat:43.0384,lng:141.3208,info:"¥2,100 (VELTRA¥1,890)｜平日17:15始発",mq:"藻岩山ロープウェイ 山麓駅"},
+  {day:4,name:"藻岩山展望台",cat:"spot",lat:43.0358,lng:141.3165,info:"日本新三大夜景｜日落18:54",mq:"藻岩山展望台"},
+  {day:4,name:"ノースコンチネント",cat:"food",lat:43.0583,lng:141.3525,info:"北海道牛100%手捏漢堡排｜¥2,000~3,000/人",mq:"ノースコンチネント まちのなか店 札幌"},
+  // Day 5 — 瀧上芝櫻＆上湧別鬱金香（一日巴士）
+  {day:5,name:"さっぽろテレビ塔 集合",cat:"transport",lat:43.0580,lng:141.3533,info:"08:10 集合出發",mq:"さっぽろテレビ塔"},
+  {day:5,name:"芝ざくら滝上公園",cat:"spot",lat:44.1399,lng:143.0412,info:"10萬㎡粉紅芝櫻｜11:30-13:00停留",mq:"芝ざくら滝上公園"},
+  {day:5,name:"かみゆうべつチューリップ公園",cat:"spot",lat:44.1537,lng:143.3836,info:"200種鬱金香｜14:00-15:30停留",mq:"かみゆうべつチューリップ公園"},
+  // Day 6 — 離境日
+  {day:6,name:"JR 札幌駅 北口",cat:"transport",lat:43.0683,lng:141.3507,info:"05:50 JR エアポート 出發",mq:"札幌駅北口"},
+  {day:6,name:"新千歳空港",cat:"transport",lat:42.7750,lng:141.6923,info:"國際線 Check-in｜VZ571 09:00",mq:"新千歳空港 国際線"},
+  {day:6,name:"ROYAL HOST 新千歳空港",cat:"food",lat:42.7755,lng:141.6927,info:"空港3F洋食早餐｜¥800~1,000/人",mq:"ロイヤルホスト 新千歳空港店"}
+];
+const MAP_COLORS={food:'#ff9500',spot:'#34c759',transport:'#5ac8fa',hotel:'#af52de'};
+
 function mapUrl(q){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`}
 function getCat(a){
   if(/[✈🚃🚇🚌🚡🚕🚢🚶🚻]/u.test(a))return 'transport';
@@ -714,6 +776,57 @@ function renderMealTab(d){
   return html;
 }
 
+function mapLegendHtml(){
+  return `<div class="map-legend">
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#ff9500"></div>餐廳</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#34c759"></div>景點</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#5ac8fa"></div>交通</div>
+    <div class="map-legend-item"><div class="map-legend-dot" style="background:#af52de"></div>飯店</div>
+  </div>`;
+}
+function createMapIcon(color){
+  return L.divIcon({className:'',html:`<div style="width:22px;height:22px;border-radius:50%;background:${color};border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)"></div>`,iconSize:[22,22],iconAnchor:[11,11],popupAnchor:[0,-13]});
+}
+const _maps={};
+function initMap(containerId,places){
+  if(_maps[containerId]){_maps[containerId].invalidateSize();return;}
+  const el=document.getElementById(containerId);
+  if(!el||el.offsetParent===null)return;
+  const map=L.map(containerId,{scrollWheelZoom:false,dragging:true,zoomControl:true}).setView([43.065,141.347],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OSM',maxZoom:18}).addTo(map);
+  const group=[];
+  places.forEach(p=>{
+    const color=MAP_COLORS[p.cat]||'#999';
+    const popup=`<b>${p.name}</b><br><span style="color:#666">${p.info}</span><br><a class="map-nav-btn" href="${mapUrl(p.mq)}" target="_blank" rel="noopener">📍 Google Maps</a>`;
+    L.marker([p.lat,p.lng],{icon:createMapIcon(color)}).addTo(map).bindPopup(popup);
+    group.push([p.lat,p.lng]);
+  });
+  if(group.length>1)map.fitBounds(group,{padding:[25,25]});
+  else if(group.length===1)map.setView(group[0],15);
+  // GPS locate button
+  el.style.position='relative';
+  const locBtn=document.createElement('button');
+  locBtn.className='map-locate-btn';locBtn.innerHTML='📍';locBtn.title='顯示我的位置';
+  el.appendChild(locBtn);
+  let locMarker=null,locCircle=null;
+  locBtn.addEventListener('click',()=>{
+    if(!navigator.geolocation){alert('你的瀏覽器不支援定位');return;}
+    locBtn.classList.add('locating');
+    navigator.geolocation.getCurrentPosition(pos=>{
+      locBtn.classList.remove('locating');
+      const lat=pos.coords.latitude,lng=pos.coords.longitude,acc=pos.coords.accuracy;
+      if(locMarker){map.removeLayer(locMarker);map.removeLayer(locCircle);}
+      locMarker=L.marker([lat,lng],{icon:L.divIcon({className:'',html:'<div class="leaflet-loc-dot"></div>',iconSize:[14,14],iconAnchor:[7,7]})}).addTo(map).bindPopup('📍 你在這裡');
+      locCircle=L.circle([lat,lng],{radius:acc,color:'#007aff',fillColor:'#007aff',fillOpacity:.1,weight:1}).addTo(map);
+      map.setView([lat,lng],15);locMarker.openPopup();
+    },err=>{
+      locBtn.classList.remove('locating');
+      alert('定位失敗：'+(err.code===1?'請允許位置存取權限':err.code===2?'無法取得位置':'定位逾時'));
+    },{enableHighAccuracy:true,timeout:10000});
+  });
+  _maps[containerId]=map;
+}
+
 function render(){
   const tabs=document.getElementById('tabs');
   const content=document.getElementById('content');
@@ -734,6 +847,8 @@ function render(){
     if(d.hotel)html+=`<div class="hotel">${d.hotel}</div>`;
     d.warns.forEach(w=>html+=`<div class="warn">⚠️ ${w}</div>`);
     html+=`</div>`;
+    // Day map
+    html+=`<div class="map-wrap"><div class="map-sm" id="daymap${d.day}"></div></div>${mapLegendHtml()}`;
     // Sub-tabs
     html+=`<div class="day-subtabs"><div class="day-subtab active" data-subtab="itinerary">🗓 行程</div><div class="day-subtab" data-subtab="meals">🍽 三餐</div></div>`;
     // Itinerary section (food items with meal field are excluded)
@@ -789,6 +904,12 @@ function render(){
     const at=document.querySelector('.tab.active');
     if(at)at.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
     window.scrollTo({top:0,behavior:'smooth'});
+    if(n>0){
+      setTimeout(()=>{
+        const dayPlaces=PLACES.filter(p=>p.day===n);
+        if(dayPlaces.length)initMap('daymap'+n,dayPlaces);
+      },100);
+    }
   }
   tabs.addEventListener('click',e=>{
     const tab=e.target.closest('.tab');
@@ -797,8 +918,12 @@ function render(){
 
   // Swipe support
   let sx=0,sy=0;
-  content.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  content.addEventListener('touchstart',e=>{
+    if(e.target.closest('.map-wrap'))return;
+    sx=e.touches[0].clientX;sy=e.touches[0].clientY;
+  },{passive:true});
   content.addEventListener('touchend',e=>{
+    if(e.target.closest('.map-wrap'))return;
     const dx=e.changedTouches[0].clientX-sx;
     const dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5){
