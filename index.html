@@ -536,49 +536,43 @@ const DAYS = [
   }
 ];
 
-const PLACES = [
-  // Day 1 — 新千歳 → 大通 → 洞爺湖
-  {day:1,name:"新千歳空港",cat:"transport",lat:42.7750,lng:141.6923,info:"入境｜07:35到達",mq:"新千歳空港",pid:"ChIJ3RpcnUUgdV8R9oH25Xxguho"},
-  {day:1,name:"SIROYA 大通",cat:"food",lat:43.0584,lng:141.3511,info:"晨間套餐無限續杯｜09:00-19:00",mq:"シロヤ SIROYA 札幌大通",pid:"ChIJnZDDhVEpC18RMI2AmsS09Rw"},
-  {day:1,name:"とうきびワゴン 大通公園",cat:"food",lat:43.0582,lng:141.3498,info:"季節限定烤玉米｜09:30-17:00",mq:"大通公園 とうきびワゴン 札幌",pid:"ChIJo-h3H-gpC18RGPnfclrX5BY"},
-  {day:1,name:"さっぽろテレビ塔",cat:"spot",lat:43.0580,lng:141.3533,info:"外觀拍照",mq:"さっぽろテレビ塔",pid:"ChIJjWSHX50pC18RMSAiw3gaBOI"},
-  {day:1,name:"大通ビッセ BISSE SWEETS",cat:"food",lat:43.0587,lng:141.3526,info:"きのとや甜點・必吃蛋包聖代｜10:00-20:00",mq:"大通ビッセ 札幌",pid:"ChIJyW07AZ0pC18RMXLk5quhf5I"},
-  {day:1,name:"The Lake Suite 湖の栖",cat:"hotel",lat:42.5576,lng:140.8073,info:"Check-in 15:00｜全室露天風呂付",mq:"ザレイクスイート湖の栖 洞爺湖",pid:"ChIJmVRU6GPjn18RTwGipnd8nXw"},
-  {day:1,name:"洞爺湖 彫刻公園",cat:"spot",lat:42.5620,lng:140.8098,info:"湖畔散策｜新綠+中島+羊蹄山",mq:"洞爺湖 彫刻公園",pid:"ChIJ_____w9XdV8RisYMzMdstjs"},
-  // Day 2 — 洞爺湖 → 札幌すすきの
-  {day:2,name:"洞爺湖汽船 桟橋",cat:"transport",lat:42.5592,lng:140.7985,info:"遊覧船 10:30 出航｜¥1,440/人",mq:"洞爺湖汽船 駅前桟橋",pid:"ChIJ8yF8s73in18RzfiK1QC8ttQ"},
-  {day:2,name:"洞爺湖温泉街",cat:"spot",lat:42.5607,lng:140.7948,info:"溫泉街散策 80分｜足湯・白いおしるこ",mq:"洞爺湖温泉街",pid:"ChIJD8YbU7zin18ROBmpoxi6q20"},
-  {day:2,name:"Comfort Hotel すすきの",cat:"hotel",lat:43.0543,lng:141.3596,info:"Check-in｜南5西1｜無料朝食付",mq:"コンフォートホテル札幌すすきの",pid:"ChIJK3sXVYEpC18RMs_IIdFZc-I"},
-  {day:2,name:"狸小路商店街",cat:"spot",lat:43.0561,lng:141.3565,info:"1→7丁目散策｜藥妝比價",mq:"狸小路商店街 札幌",pid:"ChIJyWjcFIMpC18RoRfh7HqDCT4"},
-  {day:2,name:"SOUL STORE 湯咖哩",cat:"food",lat:43.0553,lng:141.3580,info:"雞腿野菜湯咖哩｜¥1,300~2,000/人",mq:"SOUL STORE スープカレー 札幌",pid:"ChIJHwjg6pUpC18RISsrOlyk6ow"},
-  {day:2,name:"INITIAL SAPPORO",cat:"food",lat:43.0548,lng:141.3570,info:"深夜聖代｜¥2,000~3,000/人",mq:"INITIAL SAPPORO 札幌",pid:"ChIJpelx6YQpC18RV52Q2kwqdlk"},
-  // Day 3 — 小樽
-  {day:3,name:"小樽運河",cat:"spot",lat:43.1940,lng:140.9948,info:"石造倉庫群・經典拍照點",mq:"小樽運河",pid:"ChIJ0UxVV2ThCl8RIZdpda0H7gQ"},
-  {day:3,name:"ぜん庵 政寿司",cat:"food",lat:43.1904,lng:141.0001,info:"職人握壽司｜¥4,180~6,600/人｜11:00開店前記名",mq:"おたる政寿司 ぜん庵",pid:"ChIJE3yZmk3gCl8RFxH9jT4OSIQ"},
-  {day:3,name:"かま栄 工場直売店",cat:"food",lat:43.1882,lng:141.0007,info:"百年魚板・炸麵包卷｜~¥230",mq:"かま栄 工場直売店 小樽",pid:"ChIJQTIcG07gCl8RMM5h8GKfzuo"},
-  {day:3,name:"北一硝子 三号館",cat:"spot",lat:43.1863,lng:141.0019,info:"167盞石油ランプ｜08:45-18:00",mq:"北一硝子 三号館 小樽",pid:"ChIJ___DnVrgCl8RruTc290c3p8"},
-  {day:3,name:"六花亭 小樽運河店",cat:"spot",lat:43.1933,lng:140.9938,info:"マルセイバターサンド｜09:00-18:00",mq:"六花亭 小樽運河店",pid:"ChIJb54BmlrgCl8RBAlguOE736A"},
-  {day:3,name:"ルタオ本店",cat:"food",lat:43.1859,lng:141.0038,info:"本店限定生雙層起司蛋糕｜~¥900",mq:"ルタオ本店 小樽",pid:"ChIJA__BjVrgCl8R_mYZYGfWn3I"},
-  {day:3,name:"小樽オルゴール堂",cat:"spot",lat:43.1872,lng:141.0014,info:"3,200種音樂盒｜09:00-18:00",mq:"小樽オルゴール堂 本館",pid:"ChIJB2IMXFrgCl8Rx-WS9YJOmbQ"},
-  {day:3,name:"FUJIYAMAジンギスカン",cat:"food",lat:43.0574,lng:141.3590,info:"無煙烤爐成吉思汗｜¥4,500~5,000/人",mq:"FUJIYAMA ジンギスカン 札幌",pid:"ChIJbYT6zJopC18RW4IJgNvHOEE"},
-  // Day 4 — 札幌深度
-  {day:4,name:"MYSTAYS Sapporo Aspen",cat:"hotel",lat:43.0685,lng:141.3508,info:"新飯店 Check-in 15:00",mq:"ホテルマイステイズ札幌アスペン",pid:"ChIJCfSgCQspC18RE7HvgD9w6fs"},
-  {day:4,name:"札幌場外市場",cat:"food",lat:43.0665,lng:141.3301,info:"清晨漁港食堂・海鮮丼｜¥2,500~3,500/人",mq:"札幌場外市場",pid:"ChIJNaAFxLEpC18R9zvo9EuU_K0"},
-  {day:4,name:"森彦 MORIHICO. 本店",cat:"food",lat:43.0598,lng:141.3230,info:"百年古民家僅6桌・自家焙煎｜¥600~1,200/人",mq:"森彦 本店 札幌",pid:"ChIJvde7oOkpC18R4cY0fjrMLEg"},
-  {day:4,name:"北海道神宮",cat:"spot",lat:43.0562,lng:141.3125,info:"參拜｜判官餅 ¥140・福レ餅 ¥250",mq:"北海道神宮",pid:"ChIJk6jwxNwpC18RCNdmWzXijew"},
-  {day:4,name:"大丸札幌",cat:"spot",lat:43.0687,lng:141.3510,info:"STELLAR PLACE 購物｜10:00-20:00",mq:"大丸札幌店",pid:"ChIJMZf131MpC18RQsBQf7NM92s"},
-  {day:4,name:"藻岩山ロープウェイ 山麓駅",cat:"spot",lat:43.0384,lng:141.3208,info:"¥2,100 (VELTRA¥1,890)｜平日17:15始発",mq:"藻岩山ロープウェイ 山麓駅",pid:"ChIJG4fqNwYqC18Rd5EvgpNdRQ8"},
-  {day:4,name:"藻岩山展望台",cat:"spot",lat:43.0358,lng:141.3165,info:"日本新三大夜景｜日落18:54",mq:"藻岩山展望台",pid:"ChIJVxXPRfDVCl8REVDFQkZrz5o"},
-  {day:4,name:"ノースコンチネント",cat:"food",lat:43.0583,lng:141.3525,info:"北海道牛100%手捏漢堡排｜¥2,000~3,000/人",mq:"ノースコンチネント まちのなか店 札幌",pid:"ChIJ9TUrBoMpC18RMHoTJsxbzXI"},
-  // Day 5 — 瀧上芝櫻＆上湧別鬱金香（一日巴士）
-  {day:5,name:"さっぽろテレビ塔 集合",cat:"transport",lat:43.0580,lng:141.3533,info:"08:10 集合出發",mq:"さっぽろテレビ塔",pid:"ChIJjWSHX50pC18RMSAiw3gaBOI"},
-  {day:5,name:"芝ざくら滝上公園",cat:"spot",lat:44.1399,lng:143.0412,info:"10萬㎡粉紅芝櫻｜11:30-13:00停留",mq:"芝ざくら滝上公園",pid:"ChIJP9TZrzt8DV8RrIaqGf-gYxw"},
-  {day:5,name:"かみゆうべつチューリップ公園",cat:"spot",lat:44.1537,lng:143.3836,info:"200種鬱金香｜14:00-15:30停留",mq:"かみゆうべつチューリップ公園",pid:"ChIJW3RcNPmXEl8RhStdBDPMm6U"},
-  // Day 6 — 離境日
-  {day:6,name:"JR 札幌駅 北口",cat:"transport",lat:43.0683,lng:141.3507,info:"05:50 JR エアポート 出發",mq:"札幌駅北口",pid:"ChIJzdNCRwspC18R8xYdNYSj-0s"},
-  {day:6,name:"新千歳空港",cat:"transport",lat:42.7750,lng:141.6923,info:"國際線 Check-in｜VZ571 09:00",mq:"新千歳空港 国際線",pid:"ChIJmerv7EEgdV8RUHA7cKy_wT0"},
-  {day:6,name:"ROYAL HOST 新千歳空港",cat:"food",lat:42.7755,lng:141.6927,info:"空港3F洋食早餐｜¥800~1,000/人",mq:"ロイヤルホスト 新千歳空港店",pid:"ChIJo6lVeRghdV8RLKfWQaHTRlE"}
-];
+// PLACE_DATA: 以 item.m（Google Maps query）為 key，存放確定行程地點的 geo data
+// 地圖標記動態從 DAYS[n].items 過濾出有對應 key 的項目，備選方案(alts)不在此列
+const PLACE_DATA={
+  "新千歳空港":{lat:42.7750,lng:141.6923,pid:"ChIJ3RpcnUUgdV8R9oH25Xxguho"},
+  "シロヤ SIROYA 札幌大通":{lat:43.0584,lng:141.3511,pid:"ChIJnZDDhVEpC18RMI2AmsS09Rw"},
+  "大通公園 とうきびワゴン 札幌":{lat:43.0582,lng:141.3498,pid:"ChIJo-h3H-gpC18RGPnfclrX5BY"},
+  "さっぽろテレビ塔":{lat:43.0580,lng:141.3533,pid:"ChIJjWSHX50pC18RMSAiw3gaBOI"},
+  "大通ビッセ 札幌":{lat:43.0587,lng:141.3526,pid:"ChIJyW07AZ0pC18RMXLk5quhf5I"},
+  "ザレイクスイート湖の栖 洞爺湖":{lat:42.5576,lng:140.8073,pid:"ChIJmVRU6GPjn18RTwGipnd8nXw"},
+  "洞爺湖 彫刻公園":{lat:42.5620,lng:140.8098,pid:"ChIJ_____w9XdV8RisYMzMdstjs"},
+  "洞爺湖汽船 駅前桟橋":{lat:42.5592,lng:140.7985,pid:"ChIJ8yF8s73in18RzfiK1QC8ttQ"},
+  "洞爺湖温泉街":{lat:42.5607,lng:140.7948,pid:"ChIJD8YbU7zin18ROBmpoxi6q20"},
+  "コンフォートホテル札幌すすきの":{lat:43.0543,lng:141.3596,pid:"ChIJK3sXVYEpC18RMs_IIdFZc-I"},
+  "狸小路商店街 札幌":{lat:43.0561,lng:141.3565,pid:"ChIJyWjcFIMpC18RoRfh7HqDCT4"},
+  "SOUL STORE スープカレー 札幌":{lat:43.0553,lng:141.3580,pid:"ChIJHwjg6pUpC18RISsrOlyk6ow"},
+  "INITIAL SAPPORO 札幌":{lat:43.0548,lng:141.3570,pid:"ChIJpelx6YQpC18RV52Q2kwqdlk"},
+  "小樽運河":{lat:43.1940,lng:140.9948,pid:"ChIJ0UxVV2ThCl8RIZdpda0H7gQ"},
+  "おたる政寿司 ぜん庵":{lat:43.1904,lng:141.0001,pid:"ChIJE3yZmk3gCl8RFxH9jT4OSIQ"},
+  "かま栄 工場直売店 小樽":{lat:43.1882,lng:141.0007,pid:"ChIJQTIcG07gCl8RMM5h8GKfzuo"},
+  "北一硝子 三号館 小樽":{lat:43.1863,lng:141.0019,pid:"ChIJ___DnVrgCl8RruTc290c3p8"},
+  "六花亭 小樽運河店":{lat:43.1933,lng:140.9938,pid:"ChIJb54BmlrgCl8RBAlguOE736A"},
+  "ルタオ本店 小樽":{lat:43.1859,lng:141.0038,pid:"ChIJA__BjVrgCl8R_mYZYGfWn3I"},
+  "小樽オルゴール堂 本館":{lat:43.1872,lng:141.0014,pid:"ChIJB2IMXFrgCl8Rx-WS9YJOmbQ"},
+  "FUJIYAMA ジンギスカン 札幌":{lat:43.0574,lng:141.3590,pid:"ChIJbYT6zJopC18RW4IJgNvHOEE"},
+  "芝ざくら滝上公園":{lat:44.1399,lng:143.0412,pid:"ChIJP9TZrzt8DV8RrIaqGf-gYxw"},
+  "かみゆうべつチューリップ公園":{lat:44.1537,lng:143.3836,pid:"ChIJW3RcNPmXEl8RhStdBDPMm6U"},
+  "ホテルマイステイズ札幌アスペン":{lat:43.0685,lng:141.3508,pid:"ChIJCfSgCQspC18RE7HvgD9w6fs"},
+  "札幌場外市場":{lat:43.0665,lng:141.3301,pid:"ChIJNaAFxLEpC18R9zvo9EuU_K0"},
+  "森彦 本店 札幌":{lat:43.0598,lng:141.3230,pid:"ChIJvde7oOkpC18R4cY0fjrMLEg"},
+  "北海道神宮":{lat:43.0562,lng:141.3125,pid:"ChIJk6jwxNwpC18RCNdmWzXijew"},
+  "大丸札幌店":{lat:43.0687,lng:141.3510,pid:"ChIJMZf131MpC18RQsBQf7NM92s"},
+  "藻岩山ロープウェイ 山麓駅":{lat:43.0384,lng:141.3208,pid:"ChIJG4fqNwYqC18Rd5EvgpNdRQ8"},
+  "藻岩山展望台":{lat:43.0358,lng:141.3165,pid:"ChIJVxXPRfDVCl8REVDFQkZrz5o"},
+  "ノースコンチネント まちのなか店 札幌":{lat:43.0583,lng:141.3525,pid:"ChIJ9TUrBoMpC18RMHoTJsxbzXI"},
+  "新千歳空港 国際線":{lat:42.7750,lng:141.6923,pid:"ChIJmerv7EEgdV8RUHA7cKy_wT0"},
+  "ロイヤルホスト 新千歳空港店":{lat:42.7755,lng:141.6927,pid:"ChIJo6lVeRghdV8RLKfWQaHTRlE"},
+};
 const MAP_COLORS={food:'#ff9500',spot:'#34c759',transport:'#5ac8fa',hotel:'#af52de'};
 
 function mapUrl(q){return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`}
@@ -953,7 +947,8 @@ function render(){
     window.scrollTo({top:0,behavior:'smooth'});
     if(n>0){
       setTimeout(()=>{
-        const dayPlaces=PLACES.filter(p=>p.day===n);
+        const d=DAYS.find(d=>d.day===n);
+        const dayPlaces=d?d.items.filter(it=>it.m&&PLACE_DATA[it.m]).map(it=>({day:n,name:it.m,cat:getCat(it.a),...PLACE_DATA[it.m]})):[];
         if(dayPlaces.length)initMap('daymap'+n,dayPlaces);
       },100);
     }
