@@ -266,6 +266,13 @@ gmpx-place-overview{display:block;width:100%}
 .photo-thumb{flex-shrink:0;width:160px;height:110px;border-radius:10px;object-fit:cover;scroll-snap-align:start}
 .photo-skeleton{flex-shrink:0;width:160px;height:110px;border-radius:10px;background:linear-gradient(90deg,var(--border) 25%,rgba(128,128,128,.1) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* Map category filter pills */
+.map-cats{display:flex;gap:6px;margin:8px 0 4px;flex-wrap:wrap}
+.map-cat-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--text-light);cursor:pointer;transition:all .15s;user-select:none;white-space:nowrap}
+.map-cat-pill[data-cat="transport"].active{background:var(--cat-transport);border-color:var(--cat-transport);color:#fff}
+.map-cat-pill[data-cat="food"].active{background:var(--cat-food);border-color:var(--cat-food);color:#fff}
+.map-cat-pill[data-cat="spot"].active{background:var(--cat-spot);border-color:var(--cat-spot);color:#fff}
+.map-cat-pill[data-cat="hotel"].active{background:var(--cat-hotel);border-color:var(--cat-hotel);color:#fff}
 </style>
 </head>
 <body>
@@ -825,6 +832,7 @@ function showPlaceCard(pid,name){
   })();
 }
 const _maps={};
+const _dayMarkers={};
 async function initMap(containerId,places){
   if(_maps[containerId])return;
   const el=document.getElementById(containerId);
@@ -833,12 +841,15 @@ async function initMap(containerId,places){
   const {AdvancedMarkerElement,PinElement}=await google.maps.importLibrary('marker');
   const map=new Map(el,{center:{lat:43.065,lng:141.347},zoom:12,mapId:'DEMO_MAP_ID',disableDefaultUI:false,zoomControl:true,gestureHandling:'cooperative'});
   const bounds=new google.maps.LatLngBounds();
+  const dayNum=parseInt(containerId.replace('daymap',''));
+  _dayMarkers[dayNum]=[];
   places.forEach(p=>{
     const color=MAP_COLORS[p.cat]||'#999';
     const pin=new PinElement({background:color,borderColor:'#ffffff',glyphColor:'#ffffff',scale:0.85});
     const marker=new AdvancedMarkerElement({map,position:{lat:p.lat,lng:p.lng},title:p.name,content:pin,gmpClickable:true});
     onMarkerTap(marker,()=>showPlaceCard(p.pid,p.name));
     bounds.extend({lat:p.lat,lng:p.lng});
+    _dayMarkers[dayNum].push({marker,cat:p.cat,mapRef:map});
   });
   if(places.length>1)map.fitBounds(bounds,{top:25,right:25,bottom:25,left:25});
   else if(places.length===1){map.setCenter({lat:places[0].lat,lng:places[0].lng});map.setZoom(15);}
@@ -868,6 +879,15 @@ async function initMap(containerId,places){
   _maps[containerId]=map;
 }
 
+function filterDayMap(dayNum,activeCats){
+  const markers=_dayMarkers[dayNum];
+  if(!markers)return;
+  const showAll=activeCats.size===0;
+  markers.forEach(({marker,cat,mapRef})=>{marker.map=(showAll||activeCats.has(cat))?mapRef:null;});
+}
+
+const _CAT_LABELS={transport:'🚃 交通',food:'🍽 餐廳',spot:'📍 景點',hotel:'🏨 飯店'};
+
 function render(){
   const tabs=document.getElementById('tabs');
   const content=document.getElementById('content');
@@ -888,8 +908,10 @@ function render(){
     if(d.hotel)html+=`<div class="hotel">${d.hotel}</div>`;
     d.warns.forEach(w=>html+=`<div class="warn">⚠️ ${w}</div>`);
     html+=`</div>`;
-    // Day map
-    html+=`<div class="map-wrap"><div class="map-sm" id="daymap${d.day}"></div></div>${mapLegendHtml()}`;
+    // Day map + category filter pills (只顯示當天實際有標記的類別)
+    const _mapCats=[...new Set(d.items.filter(it=>it.m&&PLACE_DATA[it.m]).map(it=>getCat(it.a)).filter(Boolean))];
+    const _filterPills=_mapCats.length>1?`<div class="map-cats">${_mapCats.map(c=>`<button class="map-cat-pill" data-day="${d.day}" data-cat="${c}">${_CAT_LABELS[c]||c}</button>`).join('')}</div>`:'';
+    html+=`<div class="map-wrap"><div class="map-sm" id="daymap${d.day}"></div></div>${_filterPills}${mapLegendHtml()}`;
     // Sub-tabs
     html+=`<div class="day-subtabs"><div class="day-subtab active" data-subtab="itinerary">🗓 行程</div><div class="day-subtab" data-subtab="meals">🍽 三餐</div></div>`;
     // Itinerary section (food items with meal field are excluded)
@@ -1017,6 +1039,16 @@ function render(){
           if(subRow){subRow.style.display='';subRow.querySelector('.bfilter-sub-val').textContent=sum>0?`~¥${sum.toLocaleString()}`:'—';}
         }
       }
+      return;
+    }
+    // Map category filter pills
+    const catPill=e.target.closest('.map-cat-pill');
+    if(catPill){
+      catPill.classList.toggle('active');
+      const dayNum=+catPill.dataset.day;
+      const container=catPill.closest('.map-cats');
+      const activeCats=new Set([...container.querySelectorAll('.map-cat-pill.active')].map(p=>p.dataset.cat));
+      filterDayMap(dayNum,activeCats);
       return;
     }
     if(e.target.closest('a'))return;
