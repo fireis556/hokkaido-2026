@@ -10,5 +10,6 @@ export function mapBtn(m) {
 export function cardOpen(cls, it, dayNum, idx) {
   const ha = it.alts && it.alts.length > 0;
   const hm = !!it.m;
-  return `<div class="card ${cls}${it.c ? ' compact' : ''}${ha ? ' has-alts' : ''}${hm ? ' has-map' : ''}"${ha ? ` data-day="${dayNum}" data-idx="${idx}"` : ''}>` + (ha ? `<div class="badge">+${it.alts.length}</div>` : '');
+  const needData = ha || hm;
+  return `<div class="card ${cls}${it.c ? ' compact' : ''}${ha ? ' has-alts' : ''}${hm ? ' has-map' : ''}"${needData ? ` data-day="${dayNum}" data-idx="${idx}"` : ''}>` + (ha ? `<div class="badge">+${it.alts.length}</div>` : '');
 }

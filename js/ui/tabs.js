@@ -2,7 +2,7 @@ import { TRIP } from '../config.js';
 import { DAYS } from '../data/days.js';
 import { PLACE_DATA } from '../data/places.js';
 import { getCat } from '../categories.js';
-import { initMap } from '../map/init.js';
+import { initMap, unfocusMap, getFocusState } from '../map/init.js';
 import { renderDashboard, isDashRendered } from '../render/dashboard.js';
 import { updateSouvTotal } from '../render/souvenir.js';
 
@@ -12,6 +12,14 @@ export function getActive() { return active; }
 
 export function setDay(n) {
   if (n === active) return;
+  // Clear focus state from previous day
+  const fs = getFocusState();
+  if (fs) {
+    unfocusMap(fs.dayNum);
+    document.querySelectorAll('.card.focused').forEach(c => c.classList.remove('focused'));
+    const prevDv = document.getElementById('day' + fs.dayNum);
+    if (prevDv) { const cats = prevDv.querySelector('.map-cats'); if (cats) { cats.style.display = ''; cats.querySelectorAll('.map-cat-pill.active').forEach(p => p.classList.remove('active')); } }
+  }
   active = n;
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', +t.dataset.day === n));
   document.querySelectorAll('.day-view').forEach(v => v.classList.toggle('active', v.id === `day${n}`));

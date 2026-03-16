@@ -1,7 +1,7 @@
 import { DAYS } from '../data/days.js';
 import { setDay, getActive } from './tabs.js';
 import { openSheet } from './sheet.js';
-import { filterDayMap } from '../map/init.js';
+import { filterDayMap, focusMap, unfocusMap, getFocusState } from '../map/init.js';
 
 export function bindEvents() {
   const tabs = document.getElementById('tabs');
@@ -91,6 +91,32 @@ export function bindEvents() {
     if (badge) { const card = badge.closest('[data-day]'); if (card) { const day = +card.dataset.day, idx = +card.dataset.idx; const it = DAYS.find(d => d.day === day).items[idx]; if (it && it.alts) openSheet(it.alts, it.a); } return; }
     const exp = e.target.closest('.card-expandable');
     if (exp) { exp.classList.toggle('expanded'); return; }
+    // Focus mode — card with map link
+    const focusCard = e.target.closest('.card.has-map[data-day]');
+    if (focusCard) {
+      const day = +focusCard.dataset.day, idx = +focusCard.dataset.idx;
+      const fs = getFocusState();
+      const dv = focusCard.closest('.day-view');
+      if (fs && fs.dayNum === day && fs.idx === idx) {
+        // Toggle off — unfocus
+        unfocusMap(day);
+        focusCard.classList.remove('focused');
+        if (dv) {
+          const cats = dv.querySelector('.map-cats');
+          if (cats) { cats.style.display = ''; cats.querySelectorAll('.map-cat-pill.active').forEach(p => p.classList.remove('active')); }
+        }
+      } else {
+        // Focus or switch focus
+        document.querySelectorAll('.card.focused').forEach(c => c.classList.remove('focused'));
+        focusCard.classList.add('focused');
+        focusMap(day, idx);
+        if (dv) {
+          const cats = dv.querySelector('.map-cats');
+          if (cats) cats.style.display = 'none';
+        }
+      }
+      return;
+    }
     // Has-alts → open sheet
     const alt = e.target.closest('.has-alts');
     if (alt && alt.dataset.day) { const day = +alt.dataset.day, idx = +alt.dataset.idx; const it = DAYS.find(d => d.day === day).items[idx]; if (it && it.alts) openSheet(it.alts, it.a); }
