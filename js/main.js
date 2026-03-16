@@ -73,6 +73,13 @@ function render() {
     return html;
   }).join('');
 
+  // Compute sticky top for map-wrap (header + tabs height)
+  const headerEl = document.querySelector('.header');
+  const tabsEl = document.getElementById('tabs');
+  if (headerEl && tabsEl) {
+    document.documentElement.style.setProperty('--map-sticky-top', (headerEl.offsetHeight + tabsEl.offsetHeight) + 'px');
+  }
+
   // Bind all events
   bindEvents();
 
