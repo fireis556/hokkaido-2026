@@ -16,11 +16,11 @@ export function bindEvents() {
   // Swipe support
   let sx = 0, sy = 0;
   content.addEventListener('touchstart', e => {
-    if (e.target.closest('.map-wrap')) return;
+    if (e.target.closest('.map-sticky')) return;
     sx = e.touches[0].clientX; sy = e.touches[0].clientY;
   }, { passive: true });
   content.addEventListener('touchend', e => {
-    if (e.target.closest('.map-wrap')) return;
+    if (e.target.closest('.map-sticky')) return;
     const dx = e.changedTouches[0].clientX - sx;
     const dy = e.changedTouches[0].clientY - sy;
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {

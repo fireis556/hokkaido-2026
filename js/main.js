@@ -35,7 +35,7 @@ function render() {
     // Day map + category filter pills + legend — all inside map-wrap
     const _mapCats = [...new Set(d.items.filter(it => it.m && PLACE_DATA[it.m]).map(it => getCat(it.a)).filter(Boolean))];
     const _filterPills = _mapCats.length > 1 ? `<div class="map-cats">${_mapCats.map(c => `<button class="map-cat-pill" data-day="${d.day}" data-cat="${c}">${CAT_LABELS[c] || c}</button>`).join('')}</div>` : '';
-    html += `<div class="map-wrap"><div class="map-sm" id="daymap${d.day}"></div>${_filterPills}${mapLegendHtml()}</div>`;
+    html += `<div class="map-sticky"><div class="map-wrap"><div class="map-sm" id="daymap${d.day}"></div>${_filterPills}${mapLegendHtml()}</div></div>`;
     // Sub-tabs
     html += `<div class="day-subtabs"><div class="day-subtab active" data-subtab="itinerary">🗓 行程</div><div class="day-subtab" data-subtab="meals">🍽 三餐</div></div>`;
     // Itinerary section
