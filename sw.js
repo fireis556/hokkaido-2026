@@ -1,8 +1,29 @@
-const CACHE_NAME = 'hokkaido-v14';
+const CACHE_NAME = 'hokkaido-v15';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
+  './css/style.css',
+  './js/main.js',
+  './js/config.js',
+  './js/categories.js',
+  './js/utils.js',
+  './js/currency.js',
+  './js/data/days.js',
+  './js/data/souvenirs.js',
+  './js/data/places.js',
+  './js/data/warns.js',
+  './js/render/card-helpers.js',
+  './js/render/cards.js',
+  './js/render/restaurant.js',
+  './js/render/meal-tab.js',
+  './js/render/souvenir.js',
+  './js/render/dashboard.js',
+  './js/map/init.js',
+  './js/map/peek-card.js',
+  './js/ui/sheet.js',
+  './js/ui/tabs.js',
+  './js/ui/events.js',
   './icons/icon-192.png',
   './icons/icon-512.png'
 ];

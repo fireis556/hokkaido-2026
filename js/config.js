@@ -1,0 +1,16 @@
+export const TRIP = {
+  year: 2026,
+  month: 5,
+  startDay: 15,
+  endDay: 20,
+  travelers: 4,
+  nights: 5,
+  totalDays: 6,
+  title: '2026 北海道自由行',
+  subtitle: '05/15（五）— 05/20（三）｜5泊6日｜4人',
+  defaultCenter: { lat: 43.065, lng: 141.347 },
+  defaultZoom: 12,
+  fallbackRate: 0.218,
+  rateApi: 'https://open.er-api.com/v6/latest/JPY',
+  mapsApiKey: 'AIzaSyCHnrW003p5uFNFX_EG6yht0S5duIeeln4',
+};
