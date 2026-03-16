@@ -36,7 +36,7 @@ export async function initMap(containerId, places) {
     const color = MAP_COLORS[p.cat] || '#999';
     const pin = new PinElement({ background: color, borderColor: '#ffffff', glyphColor: '#ffffff', scale: 0.85 });
     const marker = new AdvancedMarkerElement({ map, position: { lat: p.lat, lng: p.lng }, title: p.name, content: pin, gmpClickable: true });
-    onMarkerTap(marker, () => showPlaceCard(p.pid, p.name));
+    onMarkerTap(marker, () => { if (!focusState) showPlaceCard(p.pid, p.name); });
     bounds.extend({ lat: p.lat, lng: p.lng });
     _dayMarkers[dayNum].push({ marker, cat: p.cat, mapRef: map });
   });
