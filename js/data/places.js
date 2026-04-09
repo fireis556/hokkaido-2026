@@ -9,6 +9,7 @@ export const PLACE_DATA={
   "洞爺湖 彫刻公園":{lat:42.566231,lng:140.821214,pid:"ChIJ_____w9XdV8RisYMzMdstjs"},
   "洞爺湖汽船 駅前桟橋":{lat:42.566440,lng:140.818201,pid:"ChIJ8yF8s73in18RzfiK1QC8ttQ"},
   "洞爺湖温泉街":{lat:42.565352,lng:140.821238,pid:"ChIJD8YbU7zin18ROBmpoxi6q20"},
+  "めぐりや 洞爺湖温泉":{lat:42.565224,lng:140.821586,pid:"ChIJqytbdgDjn18sRr91NIzMZQ"},
   "コンフォートホテル札幌すすきの":{lat:43.055439,lng:141.357029,pid:"ChIJK3sXVYEpC18RMs_IIdFZc-I"},
   "狸小路商店街 札幌":{lat:43.057239,lng:141.352677,pid:"ChIJyWjcFIMpC18RoRfh7HqDCT4"},
   "SOUL STORE スープカレー 札幌":{lat:43.056486,lng:141.347864,pid:"ChIJHwjg6pUpC18RISsrOlyk6ow"},
