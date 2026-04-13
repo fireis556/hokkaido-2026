@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hokkaido-v20';
+const CACHE_NAME = 'hokkaido-v21';
 const ASSETS = [
   './',
   './index.html',

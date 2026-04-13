@@ -34,4 +34,8 @@ export const PLACE_DATA={
   "ノースコンチネント まちのなか店 札幌":{lat:43.058017,lng:141.356218,pid:"ChIJ9TUrBoMpC18RMHoTJsxbzXI"},
   "新千歳空港 国際線":{lat:42.787179,lng:141.676478,pid:"ChIJmerv7EEgdV8RUHA7cKy_wT0"},
   "ロイヤルホスト 新千歳空港店":{lat:42.787294,lng:141.681359,pid:"ChIJo6lVeRghdV8RLKfWQaHTRlE"},
+  "札幌駅北口":{lat:43.06974,lng:141.3507069,pid:"ChIJzdNCRwspC18R8xYdNYSj-0s"},
+  "札幌らーめん輝風 すすきの店":{lat:43.0544013,lng:141.35471,pid:"ChIJr8gSioYpC18R-CpSOaad4jM"},
+  "麺屋雪風 すすきの本店 札幌":{lat:43.052337,lng:141.3526813,pid:"ChIJoQUaJYYpC18RppwejO6iP_A"},
+  "いそのかづお 札幌":{lat:43.054225,lng:141.3507499,pid:"ChIJddyc7IUpC18RxLlrRha6dVo"},
 };
