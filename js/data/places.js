@@ -32,6 +32,8 @@ export const PLACE_DATA={
   "藻岩山ロープウェイ 山麓駅":{lat:43.031622,lng:141.333098,pid:"ChIJG4fqNwYqC18Rd5EvgpNdRQ8"},
   "藻岩山展望台":{lat:43.022197,lng:141.322459,pid:"ChIJVxXPRfDVCl8REVDFQkZrz5o"},
   "ノースコンチネント まちのなか店 札幌":{lat:43.058017,lng:141.356218,pid:"ChIJ9TUrBoMpC18RMHoTJsxbzXI"},
+  "ななかま堂 札幌":{lat:43.0558,lng:141.3518,pid:""},
+  "幸せのレシピスイート 札幌":{lat:43.0572,lng:141.3528,pid:""},
   "新千歳空港 国際線":{lat:42.787179,lng:141.676478,pid:"ChIJmerv7EEgdV8RUHA7cKy_wT0"},
   "ロイヤルホスト 新千歳空港店":{lat:42.787294,lng:141.681359,pid:"ChIJo6lVeRghdV8RLKfWQaHTRlE"},
   "札幌駅北口":{lat:43.06974,lng:141.3507069,pid:"ChIJzdNCRwspC18R8xYdNYSj-0s"},
