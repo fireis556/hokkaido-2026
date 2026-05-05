@@ -12,7 +12,7 @@ export const PLACE_DATA={
   "めぐりや 洞爺湖温泉":{lat:42.565224,lng:140.821586,pid:"ChIJqytbdgDjn18sRr91NIzMZQ"},
   "コンフォートホテル札幌すすきの":{lat:43.055439,lng:141.357029,pid:"ChIJK3sXVYEpC18RMs_IIdFZc-I"},
   "狸小路商店街 札幌":{lat:43.057239,lng:141.352677,pid:"ChIJyWjcFIMpC18RoRfh7HqDCT4"},
-  "SOUL STORE スープカレー 札幌":{lat:43.056486,lng:141.347864,pid:"ChIJHwjg6pUpC18RISsrOlyk6ow"},
+  "羊と饂飩 札幌":{lat:43.0551318,lng:141.3538181,pid:"ChIJfTmWjyApC18R0PfuyGmv0h0"},
   "INITIAL SAPPORO 札幌":{lat:43.056985,lng:141.351212,pid:"ChIJpelx6YQpC18RV52Q2kwqdlk"},
   "小樽運河":{lat:43.199041,lng:141.002118,pid:"ChIJ0UxVV2ThCl8RIZdpda0H7gQ"},
   "おたる政寿司 ぜん庵":{lat:43.197659,lng:141.002562,pid:"ChIJE3yZmk3gCl8RFxH9jT4OSIQ"},
