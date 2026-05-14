@@ -30,7 +30,6 @@ function render() {
     // Header
     html += `<div class="day-header"><div class="date">Day ${d.day} — ${d.date}</div><div class="dtitle">${d.title}</div>`;
     if (d.hotel) html += `<div class="hotel">${d.hotel}</div>`;
-    d.warns.forEach(w => html += `<div class="warn">⚠️ ${w}</div>`);
     html += `</div>`;
     // Day map + category filter pills + legend — all inside map-wrap
     const _mapCats = [...new Set(d.items.filter(it => it.m && PLACE_DATA[it.m]).map(it => getCat(it.a)).filter(Boolean))];

@@ -1,6 +1,5 @@
 import { TRIP } from '../config.js';
 import { DAYS } from '../data/days.js';
-import { GLOBAL_WARNS } from '../data/warns.js';
 import { getCurrentRate, getRateStatus, calcFromJpy, calcFromTwd } from '../currency.js';
 import { renderSouvenir, bindSouvenirEvents, updateSouvTotal } from './souvenir.js';
 
@@ -13,18 +12,10 @@ export function renderDashboard() {
   const currentRate = getCurrentRate();
 
   let html = '<div class="day-subtabs">';
-  html += '<div class="day-subtab active" data-subtab="warns">⚠️ 注意</div>';
-  html += '<div class="day-subtab" data-subtab="budget">💰 預算</div>';
+  html += '<div class="day-subtab active" data-subtab="budget">💰 預算</div>';
   html += '<div class="day-subtab" data-subtab="calc">💱 匯率</div>';
   html += '<div class="day-subtab" data-subtab="souvenir">🎁 伴手禮</div>';
   html += '</div>';
-
-  // === Warns section ===
-  let warns = '<div class="dash-section"><h3>⚠️ 注意事項</h3>';
-  GLOBAL_WARNS.forEach(w => warns += `<div class="dash-warn">${w}</div>`);
-  DAYS.forEach(d => d.warns.forEach(w => warns += `<div class="dash-warn">Day ${d.day}：${w}</div>`));
-  warns += '</div>';
-  html += `<div class="tab-section active" data-section="warns">${warns}</div>`;
 
   // === Budget section ===
   const jpyAmounts = [];
@@ -80,7 +71,7 @@ export function renderDashboard() {
     budget += `<tr class="total" data-dview="${cat}" style="display:none"><td>換算</td><td data-conv-jpy="${cg.j}" data-conv-ntd="${cg.n}">≈ NT$${conv.toLocaleString()}</td></tr>`;
   });
   budget += '</table></div>';
-  html += `<div class="tab-section" data-section="budget">${budget}</div>`;
+  html += `<div class="tab-section active" data-section="budget">${budget}</div>`;
 
   // === Calculator section ===
   const { dotCls, label: rateLabel } = getRateStatus();

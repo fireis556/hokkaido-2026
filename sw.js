@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hokkaido-v26';
+const CACHE_NAME = 'hokkaido-v27';
 const ASSETS = [
   './',
   './index.html',
@@ -12,7 +12,6 @@ const ASSETS = [
   './js/data/days.js',
   './js/data/souvenirs.js',
   './js/data/places.js',
-  './js/data/warns.js',
   './js/render/card-helpers.js',
   './js/render/cards.js',
   './js/render/restaurant.js',
