@@ -2,8 +2,18 @@ import { TRIP } from '../config.js';
 import { DAYS } from '../data/days.js';
 import { getCurrentRate, getRateStatus, calcFromJpy, calcFromTwd } from '../currency.js';
 import { renderSouvenir, bindSouvenirEvents, updateSouvTotal } from './souvenir.js';
+import { renderCurryTab } from './curry.js';
 
 let _dashRendered = false;
+let _curryRendered = false;
+
+export function ensureCurryRendered() {
+  if (_curryRendered) return;
+  const sec = document.querySelector('#day0 [data-section="curry"]');
+  if (!sec) return;
+  _curryRendered = true;
+  renderCurryTab(sec);
+}
 
 export function isDashRendered() { return _dashRendered; }
 
@@ -15,6 +25,7 @@ export function renderDashboard() {
   html += '<div class="day-subtab active" data-subtab="budget">💰 預算</div>';
   html += '<div class="day-subtab" data-subtab="calc">💱 匯率</div>';
   html += '<div class="day-subtab" data-subtab="souvenir">🎁 伴手禮</div>';
+  html += '<div class="day-subtab" data-subtab="curry">🍛 湯咖哩</div>';
   html += '</div>';
 
   // === Budget section ===
@@ -86,6 +97,9 @@ export function renderDashboard() {
 
   // === Souvenir section ===
   html += `<div class="tab-section" data-section="souvenir">${renderSouvenir()}</div>`;
+
+  // === Curry section（內容懶渲染，於子頁籤切換時填入）===
+  html += `<div class="tab-section" data-section="curry"></div>`;
 
   el.innerHTML = html;
 

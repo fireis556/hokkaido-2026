@@ -2,6 +2,7 @@ import { DAYS } from '../data/days.js';
 import { setDay, getActive } from './tabs.js';
 import { openSheet } from './sheet.js';
 import { filterDayMap, focusMap, unfocusMap, getFocusState } from '../map/init.js';
+import { ensureCurryRendered } from '../render/dashboard.js';
 
 export function bindEvents() {
   const tabs = document.getElementById('tabs');
@@ -41,6 +42,8 @@ export function bindEvents() {
       subtab.classList.add('active');
       const sec = subtab.dataset.subtab;
       dv.querySelectorAll('.tab-section').forEach(s => s.classList.toggle('active', s.dataset.section === sec));
+      // Lazy render curry tab on first activation
+      if (sec === 'curry' && dv.id === 'day0') ensureCurryRendered();
       return;
     }
     // Budget filter chips
